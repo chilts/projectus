@@ -20,8 +20,6 @@ has 'dbh' => (
     default => sub {
         my $cfg = get_cfg();
 
-        warn "Should get in here at some stage";
-
         # get all the config options
         my $db_name = $cfg->param( q{db_name} );
         my $db_user = $cfg->param( q{db_user} );
