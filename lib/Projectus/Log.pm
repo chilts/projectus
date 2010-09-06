@@ -26,7 +26,10 @@ my $conf_template = q(
 );
 
 sub log_init {
-    my ($name) = @_;
+    my ($cfg, $name) = @_;
+
+    croak "Provide a config object (from Config::Simple, or returned from Projectus::Cfg::get_cfg()"
+        unless $cfg;
 
     $name ||= 'default.log';
 
@@ -34,10 +37,6 @@ sub log_init {
     unless ( $name =~ m{ \.log \z }xms ) {
         $name .= '.log';
     }
-
-    my $cfg = get_cfg();
-    croak "Projectus::Cfg not yet loaded correctly"
-        unless $cfg;
 
     # read some config values
     my $filename = $cfg->param('log_dir') . '/' . $name;

@@ -8,16 +8,14 @@ use Carp;
 use Config::Simple;
 
 use base 'Exporter';
-our @EXPORT_OK = qw(get_cfg);
+our @EXPORT_OK = qw(cfg_init get_cfg);
 
 my $cfg;
 
 ## ----------------------------------------------------------------------------
 
-sub get_cfg {
+sub cfg_init {
     my ($filename) = @_;
-
-    return $cfg if $cfg;
 
     croak "Provide a config filename"
         unless $filename;
@@ -30,6 +28,11 @@ sub get_cfg {
     croak "Couldn't parse config file: " . Config::Simple->error()
         unless $cfg;
 
+    return $cfg;
+
+}
+
+sub get_cfg {
     return $cfg;
 }
 
