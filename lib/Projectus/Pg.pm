@@ -57,18 +57,20 @@ has 'tables' => (
 ## ----------------------------------------------------------------------------
 
 sub register_table {
-    my ($self, $name, $prefix, @cols) = @_;
+    my ($self, $name, $prefix, $pk, @cols) = @_;
 
     $self->tables->{$name} = {
         name   => $name,
         prefix => $prefix,
+        pk     => ($pk || 'id'),
         cols   => \@cols,
+        sel    => $self->select_cols($prefix, @cols),
     };
 }
 
 sub select_cols {
-    my ($prefix, @cols) = @_;
-    return join(', ', map { "$prefix.$_"} @cols );
+    my ($self, $prefix, @cols) = @_;
+    return join(', ', map { "$prefix.$_ AS ${prefix}_$_" } @cols );
 }
 
 sub row {
@@ -84,6 +86,12 @@ sub rows {
 sub do {
     my ($self, $sql, @params) = @_;
     return $self->dbh->do($sql, undef, @params );
+}
+
+sub sel_table {
+    my ($self, $table_name) = @_;
+    my $table = $self->tables->{$table_name};
+    return qq{SELECT $table->{sel} FROM $table->{name} $table->{prefix} WHERE $table->{pk} = ?};
 }
 
 ## ----------------------------------------------------------------------------
