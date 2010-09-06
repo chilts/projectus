@@ -33,6 +33,8 @@ sub cfg_init {
 }
 
 sub get_cfg {
+    croak q{No config loaded, you should call cfg_init($filename) before calling get_cfg()}
+        unless $cfg;
     return $cfg;
 }
 
