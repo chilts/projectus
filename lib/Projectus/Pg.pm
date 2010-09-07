@@ -56,6 +56,11 @@ has 'tables' => (
 
 ## ----------------------------------------------------------------------------
 
+sub _select_cols {
+    my ($self, $prefix, @cols) = @_;
+    return join(', ', map { "$prefix.$_ AS ${prefix}_$_" } @cols );
+}
+
 sub register_table {
     my ($self, $name, $prefix, $pk, @cols) = @_;
 
@@ -64,13 +69,44 @@ sub register_table {
         prefix => $prefix,
         pk     => ($pk || 'id'),
         cols   => \@cols,
-        sel    => $self->select_cols($prefix, @cols),
+        sel    => $self->_select_cols($prefix, @cols),
     };
 }
 
-sub select_cols {
-    my ($self, $prefix, @cols) = @_;
-    return join(', ', map { "$prefix.$_ AS ${prefix}_$_" } @cols );
+sub table_meta {
+    my ($self, $table_name) = @_;
+
+    my $tables = $self->tables();
+    unless ( exists $tables->{$table_name} ) {
+        croak qq{Unknown table: $table_name};
+    }
+
+    return $tables->{$table_name};
+}
+
+sub begin {
+    my ($self) = @_;
+    $self->dbh->begin_work();
+}
+
+sub rollback {
+    my ($self) = @_;
+    $self->dbh->rollback();
+}
+
+sub commit {
+    my ($self) = @_;
+    $self->dbh->commit();
+}
+
+sub in_transaction {
+    my ($self) = @_;
+
+    # if AutoCommit is on, then we're not in a transaction
+    return if $self->dbh->{AutoCommit};
+
+    # yes, in a transaction
+    return 1;
 }
 
 sub row {
@@ -88,10 +124,18 @@ sub do {
     return $self->dbh->do($sql, undef, @params );
 }
 
-sub sel_table {
+sub sql_cols {
     my ($self, $table_name) = @_;
-    my $table = $self->tables->{$table_name};
-    return qq{SELECT $table->{sel} FROM $table->{name} $table->{prefix} WHERE $table->{pk} = ?};
+    return $self->tables->{$table_name}{sel};
+}
+
+sub sel_row_using_pk {
+    my ($self, $table_name, $id) = @_;
+
+    my $meta = $self->table_meta( $table_name );
+    my $sql = qq{SELECT $meta->{sel} FROM $meta->{name} $meta->{prefix} WHERE $meta->{pk} = ?};
+
+    return $self->rows( $sql, $id );
 }
 
 ## ----------------------------------------------------------------------------
