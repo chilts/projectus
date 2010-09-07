@@ -44,17 +44,42 @@ has 'couch' => (
 ## ----------------------------------------------------------------------------
 
 sub retrieve {
-    my ($self, $view, $key) = @_;
+    my ($self, $view, $key, $options) = @_;
+
+    # make the options
+    my $opts = {
+        key => ref $key ? JSON::Any->objToJson( $key ) : qq{"$key"},
+    };
+    foreach ( qw(skip limit) ) {
+        $opts->{$_} = $options->{$_}
+            if $options->{$_};
+    }
+
+    my $records = $self->couch->view( $view, $opts );
 
     my @records;
-    my $records = $self->couch->view( $view, { key => JSON::Any->objToJson( $key ) } );
-    # print Dumper($records);
-    # return $records->{data};
     while ( my $rec = $records->next ) {
-        # print Dumper($rec);
         push @records, $rec;
     }
+
     return \@records;
+}
+
+sub retrieve_docs {
+    my ($self, $view, $key, $options) = @_;
+
+    # make the options
+    my $opts = {
+        key => ref $key ? JSON::Any->objToJson( $key ) : qq{"$key"},
+        include_docs => 'true',
+    };
+    foreach ( qw(skip limit) ) {
+        $opts->{$_} = $options->{$_}
+            if $options->{$_};
+    }
+
+    my $records = $self->couch->view( $view, $opts );
+    return [ map { $_->{doc} } @{$records->{data}}] ;
 }
 
 ## ----------------------------------------------------------------------------
