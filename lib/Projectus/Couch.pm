@@ -4,7 +4,6 @@ package Projectus::Couch;
 
 use Moose;
 use Data::Dumper;
-use Carp;
 use DBI;
 use JSON::Any;
 use DB::CouchDB;
@@ -29,6 +28,12 @@ has 'couch' => (
         my $couch_host = $cfg->param( q{couch_host} );
         my $couch_port = $cfg->param( q{couch_port} );
         my $couch_db   = $cfg->param( q{couch_db} );
+
+        die 'No Couch host specified'
+            unless $couch_host;
+
+        die 'No Couch DB specified'
+            unless $couch_db;
 
         # save to the single instance
         $couch = DB::CouchDB->new(
@@ -88,7 +93,7 @@ sub retrieve_doc {
     my $records = $self->retrieve_docs($view, $key, $options);
 
     if ( @$records > 1 ) {
-        croak "You asked for 1 record, but " . (scalar @$records) . " were retrieved";
+        die "You asked for 1 record, but " . (scalar @$records) . " were retrieved";
     }
 
     return $records->[0];
