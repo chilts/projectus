@@ -82,6 +82,30 @@ sub retrieve_docs {
     return [ map { $_->{doc} } @{$records->{data}}] ;
 }
 
+sub retrieve_doc {
+    my ($self, $view, $key, $options) = @_;
+
+    my $records = $self->retrieve_docs($view, $key, $options);
+
+    if ( @$records > 1 ) {
+        croak "You asked for 1 record, but " . (scalar @$records) . " were retrieved";
+    }
+
+    return $records->[0];
+}
+
+sub put {
+    my ($self, $key, $doc) = @_;
+
+    my $result;
+    if ( $doc->{_id} and $doc->{_rev} ) {
+        $result = $self->couch->update_doc( $key, $doc );
+    }
+    else {
+        $result = $self->couch->create_named_doc( $doc, $key );
+    }
+}
+
 ## ----------------------------------------------------------------------------
 1;
 ## ----------------------------------------------------------------------------
