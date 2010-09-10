@@ -6,6 +6,7 @@ use strict;
 use warnings;
 use Carp;
 use Log::Log4perl;
+use Projectus::Cfg qw(get_cfg);
 
 use base 'Exporter';
 our @EXPORT_OK = qw(log_init);
@@ -24,11 +25,9 @@ my $conf_template = q(
 );
 
 sub log_init {
-    my ($cfg, $name) = @_;
+    my ($name) = @_;
 
-    croak "Provide a config object (from Config::Simple, or returned from Projectus::Cfg::get_cfg()"
-        unless $cfg;
-
+    my $cfg = get_cfg();
     $name ||= 'default.log';
 
     # add a .log unless it already has one
