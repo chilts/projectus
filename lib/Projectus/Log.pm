@@ -71,6 +71,10 @@ sub BUILD {
     # if logging is already initialised, finish here
     return if Log::Log4perl->initialized;
 
+    # no config object, so check they provided a filename
+    croak "Provide a log filename"
+        unless $params->{filename};
+
     # initialise logging
     log_init( $params->{filename});
 }
