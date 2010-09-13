@@ -10,44 +10,50 @@ use JSON::Any;
 use DB::CouchDB;
 use Projectus::Cfg qw(get_cfg);
 
-## ----------------------------------------------------------------------------
+use base 'Exporter';
+our @EXPORT_OK = qw(get_couch);
 
-# single instance which all Projectus::Couch objects share
-my $couch;
+my $couch_obj;
 
 ## ----------------------------------------------------------------------------
+# procedural interface
+
+sub get_couch {
+    # return the single instance if already created
+    return $couch_obj if $couch_obj;
+
+    my $cfg = get_cfg();
+
+    my $couch_host = $cfg->param( q{couch_host} );
+    my $couch_port = $cfg->param( q{couch_port} );
+    my $couch_db   = $cfg->param( q{couch_db} );
+
+    die 'No Couch host specified'
+        unless $couch_host;
+
+    die 'No Couch DB specified'
+        unless $couch_db;
+
+    # save to the single instance
+    $couch_obj = DB::CouchDB->new(
+        host => $couch_host,
+        ( $couch_port ? ( port => $couch_port ) : () ),
+        db   => $couch_db,
+    );
+
+    return $couch_obj;
+}
+
+## ----------------------------------------------------------------------------
+# object-oriented interface
 
 has 'couch' => (
     is      => 'rw',
     isa     => 'DB::CouchDB',
     default => sub {
-        # return the single instance if already created
-        return $couch if $couch;
-
-        my $cfg = get_cfg();
-
-        my $couch_host = $cfg->param( q{couch_host} );
-        my $couch_port = $cfg->param( q{couch_port} );
-        my $couch_db   = $cfg->param( q{couch_db} );
-
-        die 'No Couch host specified'
-            unless $couch_host;
-
-        die 'No Couch DB specified'
-            unless $couch_db;
-
-        # save to the single instance
-        $couch = DB::CouchDB->new(
-            host => $couch_host,
-            ( $couch_port ? ( port => $couch_port ) : () ),
-            db   => $couch_db,
-        );
-
-        return $couch;
+        return $couch_obj || get_couch();
     },
 );
-
-## ----------------------------------------------------------------------------
 
 sub retrieve {
     my ($self, $view, $key, $options) = @_;
