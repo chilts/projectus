@@ -146,6 +146,13 @@ sub in_transaction {
     return 1;
 }
 
+# returns the last insert ID
+sub id {
+    my ($self, $sequence_name) = @_;
+    my ($id) = $self->dbh->selectrow_array( "SELECT currval(?)", undef, $sequence_name );
+    return $id;
+}
+
 sub row {
     my ($self, $sql, @params) = @_;
     return $self->dbh->selectrow_hashref( $sql, undef, @params );
