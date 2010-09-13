@@ -3,6 +3,7 @@
 package Projectus::Couch;
 
 use Moose;
+use Carp;
 use Data::Dumper;
 use DBI;
 use JSON::Any;
@@ -109,6 +110,19 @@ sub put {
     else {
         $result = $self->couch->create_named_doc( $doc, $key );
     }
+}
+
+sub delete {
+    my ($self, $key, $rev) = @_;
+    my $result = $self->couch->delete_doc( $key, $rev );
+
+    if ( $result->err ) {
+        croak $result->err();
+    }
+
+    # copy the information out
+    my %ret = %$result;
+    return \%ret;
 }
 
 ## ----------------------------------------------------------------------------
