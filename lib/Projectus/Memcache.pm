@@ -6,35 +6,48 @@ use Moose;
 use Cache::Memcached;
 use Projectus::Cfg qw(get_cfg);
 
-## ----------------------------------------------------------------------------
+use base 'Exporter';
+our @EXPORT_OK = qw(get_memcache);
 
-# single instance which all Projectus::Memcache objects share
-my $memcache;
+my $memcache_obj;
 
 ## ----------------------------------------------------------------------------
+# procedural interface
+
+sub get_memcache {
+    # return the single instance if already created
+    return $memcache if $memcache;
+
+    my $cfg = get_cfg();
+    my @servers = $cfg->param( q{memcache_servers} );
+    my $ns = $cfg->param( q{memcache_namespace} );
+
+    die 'No memcache servers specified'
+        unless @servers;
+
+    $memcache = Cache::Memcached->new({
+        servers   => \@servers,
+        namespace => $ns // '',
+    });
+
+    return $memcache;
+}
+
+## ----------------------------------------------------------------------------
+# object-oriented interface
 
 has 'memcache' => (
     is      => 'rw',
     isa     => 'Cache::Memcached',
     default => sub {
-        # return the single instance if already created
-        return $memcache if $memcache;
-
-        my $cfg = get_cfg();
-        my @servers = $cfg->param( q{memcache_servers} );
-        my $ns = $cfg->param( q{memcache_namespace} );
-
-        die 'No memcache servers specified'
-            unless @servers;
-
-        $memcache = Cache::Memcached->new({
-            'servers'   => \@servers,
-            'namespace' => $ns // '',
-        });
-
-        return $memcache;
+        my ($self) = @_;
+        return $memcache_obj || get_memcache();
     },
 );
+
+sub inc_key {
+    die "ToDo";
+}
 
 ## ----------------------------------------------------------------------------
 1;

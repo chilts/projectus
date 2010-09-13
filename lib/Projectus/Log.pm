@@ -8,9 +8,7 @@ use Log::Log4perl;
 use Projectus::Cfg qw(get_cfg);
 
 use base 'Exporter';
-our @EXPORT_OK = qw(log_init);
-
-## ----------------------------------------------------------------------------
+our @EXPORT_OK = qw(init_log);
 
 my $filename;
 
@@ -25,9 +23,10 @@ my $conf_template = q(
 );
 
 ## ----------------------------------------------------------------------------
+# procedural interface
 
 # much like Log::Log4perl::init()
-sub log_init {
+sub init_log {
     my ($filename) = @_;
 
     if ( Log::Log4perl->initialized ) {
@@ -57,6 +56,9 @@ sub log_init {
 
 # no such thing, since we'd just use Log::Log4perl's get_logger() anyway
 # sub get_log {}
+
+## ----------------------------------------------------------------------------
+# object-oriented interface
 
 sub BUILD {
     my ($self, $params) = @_;

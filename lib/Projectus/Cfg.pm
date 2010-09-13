@@ -7,7 +7,7 @@ use Carp;
 use Config::Simple;
 
 use base 'Exporter';
-our @EXPORT_OK = qw(cfg_init get_cfg);
+our @EXPORT_OK = qw(init_cfg get_cfg);
 
 my $cfg_obj;
 
@@ -18,15 +18,17 @@ has 'cfg' => (
     default => sub {
         my ($self) = @_;
         return $cfg_obj if defined $cfg_obj;
-        croak "No config loaded, you should call cfg_init(...) first";
+        croak "No config loaded, you should call init_cfg(...) first";
     },
 );
 
 ## ----------------------------------------------------------------------------
 
 # much like Log::Log4perl::init()
-sub cfg_init {
+sub init_cfg {
     my ($filename) = @_;
+
+    return $cfg_obj if $cfg_obj;
 
     croak "Provide a config filename"
         unless $filename;

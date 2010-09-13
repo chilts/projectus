@@ -11,42 +11,56 @@ use base 'Exporter';
 our @EXPORT_OK = qw(get_pg);
 
 use constant NO_SLICE => { Slice => {} };
-
+my $dbh_obj;
 my @transaction;
 
 ## ----------------------------------------------------------------------------
+# procedural interface
+
+sub get_pg {
+    # return the single instance if already created
+    return $dbh_obj if $dbh_obj;
+
+    my $cfg = get_cfg();
+
+    # get all the config options
+    my $db_name = $cfg->param( q{db_name} );
+    my $db_user = $cfg->param( q{db_user} );
+    my $db_pass = $cfg->param( q{db_pass} );
+    my $db_host = $cfg->param( q{db_host} );
+    my $db_port = $cfg->param( q{db_port} );
+
+    die 'No database name specified'
+        unless $db_name;
+
+    # make the connection string
+    my $connect_str = qq{dbi:pg:dbname=$db_name};
+    $connect_str .= qq{;host=$db_host} if $db_host;
+    $connect_str .= qq{;port=$db_port} if $db_host;
+
+    # connect to the DB
+    $dbh_obj = DBI->connect(
+        "dbi:Pg:dbname=$db_name",
+        $db_user,
+        $db_pass,
+        {
+            AutoCommit => 1, # act like psql (the spirit of least surprise)
+            PrintError => 0, # don't print anything, we'll do it ourselves
+            RaiseError => 1, # always raise an error with something nasty
+        }
+    );
+
+    return $dbh_obj;
+}
+
+## ----------------------------------------------------------------------------
+# object-oriented interface
 
 has 'dbh' => (
     is      => 'rw',
-    isa     => 'Any',
     default => sub {
-        my $cfg = get_cfg();
-
-        # get all the config options
-        my $db_name = $cfg->param( q{db_name} );
-        my $db_user = $cfg->param( q{db_user} );
-        my $db_pass = $cfg->param( q{db_pass} );
-        my $db_host = $cfg->param( q{db_host} );
-        my $db_port = $cfg->param( q{db_port} );
-
-        # make the connection string
-        my $connect_str = qq{dbi:pg:dbname=$db_name};
-        $connect_str .= qq{;host=$db_host} if $db_host;
-        $connect_str .= qq{;port=$db_port} if $db_host;
-
-        # connect to the DB
-        my $dbh = DBI->connect(
-            "dbi:Pg:dbname=$db_name",
-            $db_user,
-            $db_pass,
-            {
-                AutoCommit => 1, # act like psql (the spirit of least surprise)
-                PrintError => 0, # don't print anything, we'll do it ourselves
-                RaiseError => 1, # always raise an error with something nasty
-            }
-            );
-
-        return $dbh;
+        my ($self) = @_;
+        return $dbh_obj || get_pg();
     },
 );
 
@@ -57,6 +71,7 @@ has 'tables' => (
 );
 
 ## ----------------------------------------------------------------------------
+# helpers
 
 sub _select_cols {
     my ($self, $prefix, @cols) = @_;
