@@ -12,6 +12,8 @@ our @EXPORT_OK = qw(get_pg);
 
 use constant NO_SLICE => { Slice => {} };
 
+my @transaction;
+
 ## ----------------------------------------------------------------------------
 
 has 'dbh' => (
@@ -86,16 +88,36 @@ sub table_meta {
 
 sub begin {
     my ($self) = @_;
+
+    # if we're already in a transaction, remember this and return
+    if ( $self->in_transaction ) {
+        push @transaction, scalar caller;
+        return;
+    }
+
     $self->dbh->begin_work();
 }
 
 sub rollback {
     my ($self) = @_;
+
+    # if we're rolling back, ignore the transaction depth
+    @transaction = ();
     $self->dbh->rollback();
 }
 
 sub commit {
     my ($self) = @_;
+
+    # having no transaction would be weird
+    croak "Commit called but we're not in a transaction"
+        unless $self->in_transaction;
+
+    # pop this transaction and if some left, just finish, else commit
+    pop @transaction;
+    return if @transaction;
+
+    # no more transactions, so commit
     $self->dbh->commit();
 }
 
