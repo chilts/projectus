@@ -12,17 +12,7 @@ our @EXPORT_OK = qw(init_cfg get_cfg);
 my $cfg_obj;
 
 ## ----------------------------------------------------------------------------
-
-has 'cfg' => (
-    is => 'rw',
-    default => sub {
-        my ($self) = @_;
-        return $cfg_obj if defined $cfg_obj;
-        croak "No config loaded, you should call init_cfg(...) first";
-    },
-);
-
-## ----------------------------------------------------------------------------
+# procedural interface
 
 # much like Log::Log4perl::init()
 sub init_cfg {
@@ -50,6 +40,20 @@ sub get_cfg {
         unless $cfg_obj;
     return $cfg_obj;
 }
+
+## ----------------------------------------------------------------------------
+# object-oriented interface
+
+has 'cfg' => (
+    is => 'rw',
+    default => sub {
+        my ($self) = @_;
+        return $cfg_obj if defined $cfg_obj;
+
+        # can't call init_cfg() ourselves since we don't have a $filename here
+        croak "No config loaded, you should call init_cfg(...) first";
+    },
+);
 
 sub BUILD {
     my ($self, $params) = @_;
