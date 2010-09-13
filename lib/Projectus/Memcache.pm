@@ -16,7 +16,7 @@ my $memcache_obj;
 
 sub get_memcache {
     # return the single instance if already created
-    return $memcache if $memcache;
+    return $memcache_obj if $memcache_obj;
 
     my $cfg = get_cfg();
     my @servers = $cfg->param( q{memcache_servers} );
@@ -25,12 +25,12 @@ sub get_memcache {
     die 'No memcache servers specified'
         unless @servers;
 
-    $memcache = Cache::Memcached->new({
+    $memcache_obj = Cache::Memcached->new({
         servers   => \@servers,
         namespace => $ns // '',
     });
 
-    return $memcache;
+    return $memcache_obj;
 }
 
 ## ----------------------------------------------------------------------------
