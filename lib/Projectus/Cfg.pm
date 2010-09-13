@@ -14,7 +14,7 @@ my $cfg_obj;
 ## ----------------------------------------------------------------------------
 
 has 'cfg' => (
-    isa => 'r',
+    is => 'rw',
     default => sub {
         my ($self) = @_;
         return $cfg_obj if defined $cfg_obj;
