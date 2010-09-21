@@ -73,6 +73,11 @@ has 'tables' => (
 ## ----------------------------------------------------------------------------
 # helpers
 
+sub _select_list {
+    my ($self, $prefix, @cols) = @_;
+    return join(', ', map { "${prefix}_$_" } @cols );
+}
+
 sub _select_cols {
     my ($self, $prefix, @cols) = @_;
     return join(', ', map { "$prefix.$_ AS ${prefix}_$_" } @cols );
