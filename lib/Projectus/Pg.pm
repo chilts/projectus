@@ -34,13 +34,13 @@ sub get_pg {
         unless $db_name;
 
     # make the connection string
-    my $connect_str = qq{dbi:pg:dbname=$db_name};
+    my $connect_str = qq{dbi:Pg:dbname=$db_name};
     $connect_str .= qq{;host=$db_host} if $db_host;
     $connect_str .= qq{;port=$db_port} if $db_host;
 
     # connect to the DB
     $dbh_obj = DBI->connect(
-        "dbi:Pg:dbname=$db_name",
+        $connect_str,
         $db_user,
         $db_pass,
         {
