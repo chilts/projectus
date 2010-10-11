@@ -1,3 +1,9 @@
+libprojectus-perl (0.02) unstable; urgency=low
+
+  * New release
+
+ -- Andrew Chilton <chilts@appsattic.com>  Mon, 11 Oct 2010 22:23:44 +1300
+
 libprojectus-perl (0.01) unstable; urgency=low
 
   * Initial Release.
