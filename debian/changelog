@@ -1,3 +1,9 @@
+libprojectus-perl (0.03) unstable; urgency=low
+
+  * Deprecate 'put' and add 'overwrite'
+
+ -- Andrew Chilton <chilts@appsattic.com>  Fri, 15 Oct 2010 15:43:46 +1300
+
 libprojectus-perl (0.02) unstable; urgency=low
 
   * New release
