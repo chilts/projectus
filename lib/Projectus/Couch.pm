@@ -107,15 +107,57 @@ sub retrieve_doc {
 }
 
 sub put {
-    my ($self, $key, $doc) = @_;
+    croak "This method has been deprecated";
+}
 
-    my $result;
-    if ( $doc->{_id} and $doc->{_rev} ) {
-        $result = $self->couch->update_doc( $key, $doc );
+# this method will just save a new version of the document. It is _your_ responsibility to
+# have already retrieved the document from CouchDB since this method will croak unless
+# you can supply a valid '_id' and '_key' within the $document
+sub save {
+    my ($self, $document) = @_;
+
+    unless ( $document->{_id} and $document->{_rev} ) {
+        croak qq{Couldn't find both the _id ($document->{_id}) or revision ($document->{_rev})};
+    }
+
+    my $result = $self->couch->update_doc( $document->{_id}, $document );
+    if ( $result->err ) {
+        croak qq{Couldn't save document: } . $result->errstr;
+    }
+    return $document;
+}
+
+# This method will make sure that whatever is in CouchDB will be
+# overwritten. It does this by firstly checking CouchDB for the document and
+# either putting a new one or overwriting the old one.
+#
+# ie. you don't have to check CouchDB yourself, this just works.
+sub overwrite {
+    my ($self, $id, $document) = @_;
+
+    my $result = $self->couch->get_doc( $id );
+    if ( $result->err ) {
+        # no document exists yet, create it
+        $result = $self->couch->create_named_doc( $document, $id );
+        if ( $result->err ) {
+            croak qq{Failed to create new document: } . $result->errstr;
+        }
+
+        # save these to the document
+        $document->{_id} = $result->{_id};
+        $document->{_rev} = $result->{_rev};
     }
     else {
-        $result = $self->couch->create_named_doc( $doc, $key );
+        # document already exists, so use the correct _rev
+        $result = $self->couch->update_doc( $id, $document );
+        if ( $result->err ) {
+            croak qq{Failed to create new document: } . $result->errstr;
+        }
+
+        # save the new _rev to the document
+        $document->{_rev} = $result->{_rev};
     }
+    return $document;
 }
 
 sub delete {
