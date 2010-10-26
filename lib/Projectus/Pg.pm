@@ -168,6 +168,11 @@ sub rows {
     return $self->dbh->selectall_arrayref($sql, NO_SLICE, @params );
 }
 
+sub hash {
+    my ($self, $sql, $key, @params) = @_;
+    return $self->dbh->selectall_hashref($sql, $key, undef, @params);
+}
+
 sub do {
     my ($self, $sql, @params) = @_;
     return $self->dbh->do($sql, undef, @params );
