@@ -1,3 +1,9 @@
+libprojectus-perl (0.04) lucid; urgency=low
+
+  * Add the hash() method for the database
+
+ -- Andrew Chilton <chilts@appsattic.com>  Wed, 27 Oct 2010 11:06:08 +1300
+
 libprojectus-perl (0.03) unstable; urgency=low
 
   * Deprecate 'put' and add 'overwrite'
