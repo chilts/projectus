@@ -3,7 +3,7 @@
 package Projectus::Log;
 
 use Moose;
-use Carp qw(croak confess);
+use Carp qw(carp croak cluck confess);
 use Log::Log4perl;
 use Projectus::Cfg qw(get_cfg);
 
