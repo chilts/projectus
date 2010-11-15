@@ -1,6 +1,14 @@
+libprojectus-perl (0.05) lucid; urgency=low
+
+  * New Projectus::Valid module
+  * New Projectus::Email module
+  * Fix saving an existing document in Projectus::Couch
+
+ -- Andrew Chilton <chilts@appsattic.com>  Mon, 15 Nov 2010 17:52:25 +1300
+
 libprojectus-perl (0.04) lucid; urgency=low
 
-  * Add the hash() method for the database
+  * Add toe hash() method for the database
 
  -- Andrew Chilton <chilts@appsattic.com>  Wed, 27 Oct 2010 11:06:08 +1300
 
