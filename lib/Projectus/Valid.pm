@@ -42,7 +42,7 @@ sub valid_ipv4 {
     # check for 4 of them, between 0 and 255 inclusive
     return 0 unless @octets == 4;
     foreach my $octet ( @octets ) {
-        return 0 unless $self->valid_int($octet);
+        return 0 unless valid_int($octet);
         return 0 unless ( $octet >= 0 and $octet <= 255 );
     }
 
