@@ -1,3 +1,9 @@
+libprojectus-perl (0.06) lucid; urgency=low
+
+  * Fix the valid_ipv4() call to valid_int()
+
+ -- Andrew Chilton <chilts@appsattic.com>  Tue, 16 Nov 2010 01:25:34 +1300
+
 libprojectus-perl (0.05) lucid; urgency=low
 
   * New Projectus::Valid module
@@ -8,7 +14,7 @@ libprojectus-perl (0.05) lucid; urgency=low
 
 libprojectus-perl (0.04) lucid; urgency=low
 
-  * Add toe hash() method for the database
+  * Add the hash() method for the database
 
  -- Andrew Chilton <chilts@appsattic.com>  Wed, 27 Oct 2010 11:06:08 +1300
 
