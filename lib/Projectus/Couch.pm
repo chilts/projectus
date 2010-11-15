@@ -149,6 +149,9 @@ sub overwrite {
     }
     else {
         # document already exists, so use the correct _rev
+        $document->{_rev} = $result->{_rev};
+
+        # now update it in the datastore
         $result = $self->couch->update_doc( $id, $document );
         if ( $result->err ) {
             croak qq{Failed to create new document: } . $result->errstr;
