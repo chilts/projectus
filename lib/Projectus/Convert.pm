@@ -9,15 +9,13 @@ our @EXPORT_OK = qw(
 );
 
 use Projectus::Valid qw(valid_something);
-use Carp;
 
 ## ----------------------------------------------------------------------------
 
 sub convert_to_uid {
     my ($something) = @_;
 
-    croak "Provide a non-empty string (ie. not undef, the empty string or just whitespace)"
-        unless valid_something($something);
+    return '' unless valid_something($something);
 
     # lowercase everything
     $something = lc $something;
@@ -37,12 +35,6 @@ sub convert_to_uid {
     # remove start and end dashes
     $something =~ s{ \A - }{}gxms;
     $something =~ s{ - \z }{}gxms;
-
-    croak "Must start with a letter"
-        unless $something =~ m{ \A [a-z] }xms;
-
-    croak "Provide a string with at least one letter"
-        unless valid_something($something);
 
     return $something;
 }

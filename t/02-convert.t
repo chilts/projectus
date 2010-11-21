@@ -1,16 +1,15 @@
 #!/usr/bin/perl
 ## ----------------------------------------------------------------------------
 
-use Test::More tests => 27;
+use Test::More tests => 28;
 use Test::Exception;
 
 use Projectus::Convert qw(convert_to_uid);
 
-throws_ok( sub { convert_to_uid(          ) }, qr{Provide a non-empty string}, q{throws with undef} );
-throws_ok( sub { convert_to_uid(  q{}     ) }, qr{Provide a non-empty string}, q{throws with the empty string} );
-throws_ok( sub { convert_to_uid(  q{}     ) }, qr{Provide a non-empty string}, q{throws with just spaces} );
-throws_ok( sub { convert_to_uid( qq{\t\n} ) }, qr{Provide a non-empty string}, q{throws with just whitespace} );
-throws_ok( sub { convert_to_uid( qq{1one} ) }, qr{start with a letter}, q{throws with an initial number} );
+is( convert_to_uid(          ), q{}, q{empty with undef} );
+is( convert_to_uid(  q{}     ), q{}, q{empty with the empty string} );
+is( convert_to_uid(  q{}     ), q{}, q{empty with just spaces} );
+is( convert_to_uid( qq{\t\n} ), q{}, q{empty with just whitespace} );
 
 is( convert_to_uid( q{a}  ), q{a}, q{just 'a'} );
 is( convert_to_uid( q{a-} ), q{a}, q{ends up with 'a'} );
@@ -25,6 +24,8 @@ is( convert_to_uid( q{Capitalised} ), q{capitalised}, q{Capitalised} );
 is( convert_to_uid( q{one1} ), q{one1}, q{Numbers one} );
 is( convert_to_uid( q{Numb3rs} ), q{numb3rs}, q{Numbers three} );
 is( convert_to_uid( q{-dash} ), q{dash}, q{Initial Dash} );
+is( convert_to_uid( qq{1one} ), q{1one}, q{initial number left ok} );
+is( convert_to_uid( qq{99 Red Balloons} ), '99-red-balloons', q{99-red-balloons} );
 
 # random stuff
 is( convert_to_uid( q{^Hello, World!$} ), q{hello-world}, q{random 1} );
