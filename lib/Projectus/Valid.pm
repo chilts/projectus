@@ -12,6 +12,7 @@ our @EXPORT_OK = qw(
     valid_int
     valid_domain
     valid_ipv4
+    valid_token
 );
 
 ## ----------------------------------------------------------------------------
@@ -45,6 +46,17 @@ sub valid_ipv4 {
         return 0 unless valid_int($octet);
         return 0 unless ( $octet >= 0 and $octet <= 255 );
     }
+
+    return 1;
+}
+
+sub valid_token {
+    my ($self, $token) = @_;
+
+    return 0 unless valid_something($token);
+
+    # must start/end with a letter, but can have letters and -'s in the middle
+    return 0 unless $token =~ m{[a-z][a-z-]*[a-z]}xms;
 
     return 1;
 }
