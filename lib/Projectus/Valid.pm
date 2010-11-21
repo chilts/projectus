@@ -19,21 +19,21 @@ our @EXPORT_OK = qw(
 
 sub valid_something {
     my ($something) = @_;
-    return unless defined $something;
+    return 0 unless defined $something;
     return 1 if $something =~ m{ \S }xms;
-    return;
+    return 0;
 }
 
 sub valid_int {
     my ($int) = @_;
     return 1 if $int =~ m{ \A \d+ \z }xms;
-    return;
+    return 0;
 }
 
 sub valid_domain {
     my ($domain) = @_;
     return 1 if is_domain($domain);
-    return;
+    return 0;
 }
 
 sub valid_ipv4 {
