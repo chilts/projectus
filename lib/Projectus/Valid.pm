@@ -5,6 +5,7 @@ use base qw(Exporter);
 
 use Data::Validate::Domain qw(is_domain);
 use Email::Valid;
+use URI;
 
 our @EXPORT = qw();
 our @EXPORT_OK = qw(
@@ -13,6 +14,7 @@ our @EXPORT_OK = qw(
     valid_domain
     valid_ipv4
     valid_token
+    valid_url
 );
 
 ## ----------------------------------------------------------------------------
@@ -58,6 +60,21 @@ sub valid_token {
     # must start/end with a letter, but can have letters and -'s in the middle
     return 0 unless $token =~ m{[a-z][a-z-]*[a-z]}xms;
 
+    return 1;
+}
+
+sub valid_url {
+    my ($url) = @_;
+
+    my $uri = URI->new($url);
+
+    # print "uri = $uri\n";
+    # print "* scheme   = " . $uri->scheme . "\n";
+    # print "* opaque   = " . $uri->opaque . "\n";
+    # print "* path     = " . $uri->path . "\n";
+    # print "* fragment = " . $uri->fragment . "\n";
+
+    return 0 unless ( $uri->scheme eq 'http' or $uri->scheme eq 'https' );
     return 1;
 }
 
