@@ -53,12 +53,15 @@ sub valid_ipv4 {
 }
 
 sub valid_token {
-    my ($self, $token) = @_;
+    my ($token) = @_;
 
     return 0 unless valid_something($token);
 
-    # must start/end with a letter, but can have letters and -'s in the middle
-    return 0 unless $token =~ m{[a-z][a-z-]*[a-z]}xms;
+    # must start/end with a letter/number, but can have letters and -'s in the middle
+    return 0 unless $token =~ m{ \A [a-z0-9][a-z0-9-]*[a-z0-9] \z }xms;
+
+    # double dashes are not allowed
+    return 0 if $token =~ m{--}xms;
 
     return 1;
 }
