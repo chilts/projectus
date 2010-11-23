@@ -197,6 +197,19 @@ sub sel_row_using_pk {
     return $self->rows( $sql, $id );
 }
 
+sub ins_all {
+    my ($self, $tablename, $fieldlist, $values) = @_;
+
+    my $sql = qq{INSERT INTO $tablename};
+    $sql .= q{(} . join(',', @$fieldlist) . qq{)};
+    $sql .= q{ VALUES(} . join(',', map { '?' } 1 .. scalar @$fieldlist) . qq{)};
+
+    # loop through all the data
+    foreach my $row ( @$values ) {
+        $self->dbh->do($sql, undef, @$row{@$fieldlist} );
+    }
+}
+
 ## ----------------------------------------------------------------------------
 1;
 ## ----------------------------------------------------------------------------
