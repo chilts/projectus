@@ -18,6 +18,11 @@ my @transaction;
 # procedural interface
 
 sub get_pg {
+    warn "DEPRECATED: you should use get_dbh() (since this should be named as such)";
+    return get_dbh();
+}
+
+sub get_dbh {
     # return the single instance if already created
     return $dbh_obj if $dbh_obj;
 
@@ -60,7 +65,7 @@ has 'dbh' => (
     is      => 'rw',
     default => sub {
         my ($self) = @_;
-        return $dbh_obj || get_pg();
+        return $dbh_obj || get_dbh();
     },
 );
 
