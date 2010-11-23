@@ -114,11 +114,11 @@ sub table_meta {
 sub begin {
     my ($self) = @_;
 
+    # remember that we have said we want to be in a transaction
+    push @transaction, scalar caller;
+
     # if we're already in a transaction, remember this and return
-    if ( $self->in_transaction ) {
-        push @transaction, scalar caller;
-        return;
-    }
+    return if $self->in_transaction;
 
     $self->dbh->begin_work();
 }
@@ -126,7 +126,11 @@ sub begin {
 sub rollback {
     my ($self) = @_;
 
-    # if we're rolling back, ignore the transaction depth
+    # having no transaction would be weird
+    croak "Rollback called but we're not in a transaction"
+        unless $self->in_transaction;
+
+    # if we're rolling back, ignore the transaction depth and get rid of it
     @transaction = ();
     $self->dbh->rollback();
 }
@@ -142,18 +146,28 @@ sub commit {
     pop @transaction;
     return if @transaction;
 
-    # no more transactions, so commit
+    # no more stacked transactions, so commit
     $self->dbh->commit();
 }
 
 sub in_transaction {
     my ($self) = @_;
 
-    # if AutoCommit is on, then we're not in a transaction
-    return if $self->dbh->{AutoCommit};
+    # When checking for whether we are in a transaction, we only ask the
+    # database driver and not our @transaction stack. The reason for this is
+    # because sometimes we might have called ->begin() a number of times, yet
+    # if a DB query fails the driver will throw a wobbly and the transaction is
+    # automatically aborted.
+    #
+    # Therefore, we might end up in a situation with 3 things in the
+    # @transaction stack, yet we're not (in terms of the DB driver) actually in
+    # a transaction.
+    #
+    # So here, just return what the DB driver knows is correct, rather than
+    # what we _think_ is correct.
 
-    # yes, in a transaction
-    return 1;
+    # if AutoCommit is on, then we're not in a transaction, else we are
+    return $self->dbh->{AutoCommit} ? 0 : 1;
 }
 
 # returns the last insert ID
