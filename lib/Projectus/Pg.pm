@@ -8,7 +8,7 @@ use DBI;
 use Projectus::Cfg qw(get_cfg);
 
 use base 'Exporter';
-our @EXPORT_OK = qw(get_pg);
+our @EXPORT_OK = qw(get_pg get_dbh);
 
 use constant NO_SLICE => { Slice => {} };
 my $dbh_obj;
