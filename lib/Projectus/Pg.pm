@@ -18,7 +18,7 @@ my @transaction;
 # procedural interface
 
 sub get_pg {
-    warn "DEPRECATED: you should use get_dbh() (since this should be named as such)";
+    carp "DEPRECATED: you should use get_dbh() (since this should be named as such)";
     return get_dbh();
 }
 
