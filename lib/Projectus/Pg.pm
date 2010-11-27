@@ -8,7 +8,7 @@ use DBI;
 use Projectus::Cfg qw(get_cfg);
 
 use base 'Exporter';
-our @EXPORT_OK = qw(get_pg get_dbh);
+our @EXPORT_OK = qw(get_pg get_dbh placeholders);
 
 use constant NO_SLICE => { Slice => {} };
 my $dbh_obj;
@@ -222,6 +222,11 @@ sub ins_all {
     foreach my $row ( @$values ) {
         $self->dbh->do($sql, undef, @$row{@$fieldlist} );
     }
+}
+
+sub placeholders {
+    my ($array_ref) = @_;
+    return join(', ', map { '?' } @$array_ref);
 }
 
 ## ----------------------------------------------------------------------------
