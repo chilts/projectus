@@ -36,7 +36,7 @@ sub init_cfg {
 
 # much like Log::Log4perl's get_logger()
 sub get_cfg {
-    croak q{No config loaded, you should call cfg_init($filename) before calling get_cfg()}
+    croak q{No config loaded, you should call init_cfg($filename) before calling get_cfg()}
         unless $cfg_obj;
     return $cfg_obj;
 }
