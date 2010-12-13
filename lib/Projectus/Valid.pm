@@ -6,6 +6,7 @@ use base qw(Exporter);
 use Data::Validate::Domain qw(is_domain);
 use Email::Valid;
 use URI;
+use Date::Simple;
 
 our @EXPORT = qw();
 our @EXPORT_OK = qw(
@@ -15,6 +16,7 @@ our @EXPORT_OK = qw(
     valid_ipv4
     valid_token
     valid_url
+    valid_date
 );
 
 ## ----------------------------------------------------------------------------
@@ -79,6 +81,15 @@ sub valid_url {
 
     return 0 unless ( $uri->scheme eq 'http' or $uri->scheme eq 'https' );
     return 1;
+}
+
+sub valid_date {
+    my ($date) = @_;
+
+    my $date = Date::Simple->new($date);
+
+    return 1 if $date;
+    return 0;
 }
 
 ## ----------------------------------------------------------------------------

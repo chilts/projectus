@@ -1,9 +1,9 @@
 #!/usr/bin/perl
 ## ----------------------------------------------------------------------------
 
-use Test::More tests => 37;
+use Test::More tests => 42;
 
-use Projectus::Valid qw(valid_int valid_token valid_url);
+use Projectus::Valid qw(valid_int valid_token valid_url valid_date);
 
 is( valid_int(),  0, q{[undef] is not an int} );
 is( valid_int(q{}),  0, q{the empty string is not an int} );
@@ -50,5 +50,11 @@ is( valid_url( q{http://google.com:80/} ), 1, q{with port} );
 is( valid_url( q{http://google.com:8080/} ), 1, q{with non-standard port} );
 is( valid_url( q{http://smal.ly/} ), 1, q{weird tld} );
 is( valid_url( q{http://twitter.com/#!andychilton} ), 1, q{with fragment} );
+
+is( valid_date( q{2010-12-14} ), 1, q{yyyy-mm-dd} );
+is( valid_date( q{1976-02-29} ), 1, q{leap year} );
+is( valid_date( q{14/12/2010} ), 0, q{dd/mm/yyyy} );
+is( valid_date( q{14-12-2010} ), 0, q{dd-mm-yyyy} );
+is( valid_date( q{2011-02-29} ), 0, q{non-leap year} );
 
 ## ----------------------------------------------------------------------------
