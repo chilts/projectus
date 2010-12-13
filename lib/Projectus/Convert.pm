@@ -56,7 +56,7 @@ sub convert_ddmmyyyy_to_iso8601 {
 
     # get what we can out of this date
     my ($dd, $mm, $yyyy) = $date =~ m{ \A (\d\d)/(\d\d)/(\d\d\d\d) \z }xms;
-    return unless defined $dd and defined $mm and defined $yyyy;
+    return undef unless defined $dd and defined $mm and defined $yyyy;
 
     # rely on Date::Simple
     my $date = Date::Simple->new( qq{$yyyy-$mm-$dd} );
