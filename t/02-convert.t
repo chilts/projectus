@@ -1,10 +1,10 @@
 #!/usr/bin/perl
 ## ----------------------------------------------------------------------------
 
-use Test::More tests => 28;
+use Test::More tests => 33;
 use Test::Exception;
 
-use Projectus::Convert qw(convert_to_uid);
+use Projectus::Convert qw(convert_to_uid convert_ddmmyyyy_to_iso8601);
 
 is( convert_to_uid(          ), q{}, q{empty with undef} );
 is( convert_to_uid(  q{}     ), q{}, q{empty with the empty string} );
@@ -37,5 +37,11 @@ is( convert_to_uid( q{Jossie's Giants} ), q{jossies-giants}, q{random 6} );
 is( convert_to_uid( q{The Merry Go Round} ), q{the-merry-go-round}, q{random 7} );
 is( convert_to_uid( q{  Hmm, this !s a b1t strange, aye!} ), q{hmm-this-s-a-b1t-strange-aye}, q{random 8} );
 is( convert_to_uid( q{ P3RL^ } ), q{p3rl}, q{random 9} );
+
+is ( convert_ddmmyyyy_to_iso8601( q{14/12/2010} ), q{2010-12-14}, q{Today} );
+is ( convert_ddmmyyyy_to_iso8601( q{01/01/2010} ), q{2010-01-01}, q{First of Jan} );
+is ( convert_ddmmyyyy_to_iso8601( q{02/01/2010} ), q{2010-01-02}, q{Second of Jan} );
+is ( convert_ddmmyyyy_to_iso8601( q{02-01-2010} ), undef, q{Invalid format} );
+is ( convert_ddmmyyyy_to_iso8601( q{29/02/2011} ), undef, q{Invalid date} );
 
 ## ----------------------------------------------------------------------------
