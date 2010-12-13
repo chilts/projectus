@@ -1,10 +1,10 @@
 #!/usr/bin/perl
 ## ----------------------------------------------------------------------------
 
-use Test::More tests => 33;
+use Test::More tests => 59;
 use Test::Exception;
 
-use Projectus::Convert qw(convert_to_uid convert_ddmmyyyy_to_iso8601);
+use Projectus::Convert qw(convert_to_uid convert_ddmmyyyy_to_iso8601 convert_to_boolean);
 
 is( convert_to_uid(          ), q{}, q{empty with undef} );
 is( convert_to_uid(  q{}     ), q{}, q{empty with the empty string} );
@@ -43,5 +43,14 @@ is ( convert_ddmmyyyy_to_iso8601( q{01/01/2010} ), q{2010-01-01}, q{First of Jan
 is ( convert_ddmmyyyy_to_iso8601( q{02/01/2010} ), q{2010-01-02}, q{Second of Jan} );
 is ( convert_ddmmyyyy_to_iso8601( q{02-01-2010} ), undef, q{Invalid format} );
 is ( convert_ddmmyyyy_to_iso8601( q{29/02/2011} ), undef, q{Invalid date} );
+
+foreach my $true ( qw(Yes yes Y y TRUE True true t T ON on 1) ) {
+    is ( convert_to_boolean( $true ), 1, qq{True ($true)} );
+}
+foreach my $false ( qw(No no N n FALSE False false f F OFF off 0) ) {
+    is ( convert_to_boolean( $false ), 0, qq{False ($false)} );
+}
+is ( convert_to_boolean(), 0, qq{Undefined is false)} );
+is ( convert_to_boolean(''), 0, qq{Empty string is false)} );
 
 ## ----------------------------------------------------------------------------

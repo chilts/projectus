@@ -7,9 +7,20 @@ our @EXPORT = qw();
 our @EXPORT_OK = qw(
     convert_to_uid
     convert_ddmmyyyy_to_iso8601
+    convert_to_boolean
 );
 
 use Projectus::Valid qw(valid_something);
+
+## ----------------------------------------------------------------------------
+# constants
+
+my $map = {
+    boolean => {
+        true => { map { $_ => 1 } qw(1 t true y yes on) },
+        false => { map { $_ => 1 } qw(0 f false n no off) },
+    },
+};
 
 ## ----------------------------------------------------------------------------
 
@@ -51,6 +62,16 @@ sub convert_ddmmyyyy_to_iso8601 {
     my $date = Date::Simple->new( qq{$yyyy-$mm-$dd} );
     return unless $date;
     return "$date"; # stringify the output
+}
+
+sub convert_to_boolean {
+    my ($boolean) = @_;
+
+    return 0 unless defined $boolean;
+
+    # only really check for true, anything else is false
+    return 1 if exists $map->{boolean}{true}{lc $boolean};
+    return 0;
 }
 
 ## ----------------------------------------------------------------------------

@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 ## ----------------------------------------------------------------------------
 
-use Test::More tests => 49;
+use Test::More tests => 91;
 
 use Projectus::Valid qw(valid_int valid_token valid_url valid_date valid_boolean valid_json);
 
