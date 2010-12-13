@@ -7,6 +7,7 @@ use Data::Validate::Domain qw(is_domain);
 use Email::Valid;
 use URI;
 use Date::Simple;
+use JSON::Any;
 
 our @EXPORT = qw();
 our @EXPORT_OK = qw(
@@ -17,7 +18,18 @@ our @EXPORT_OK = qw(
     valid_token
     valid_url
     valid_date
+    valid_boolean
+    valid_json
 );
+
+## ----------------------------------------------------------------------------
+# constants
+
+my $valid = {
+    boolean => {
+        map { $_ => 1 } qw(t f true false y n yes no on off 0 1)
+    },
+};
 
 ## ----------------------------------------------------------------------------
 
@@ -90,6 +102,22 @@ sub valid_date {
 
     return 1 if $date;
     return 0;
+}
+
+sub valid_boolean {
+    my ($boolean) = @_;
+
+    return 1 if exists $valid->{boolean}{lc $boolean};
+    return 0;
+}
+
+sub valid_json {
+    my ($json) = @_;
+
+    # wow, this prints some horrible stuff onto STDERR
+    eval { JSON::Any->jsonToObj($json); };
+    # warn $@ if $@;
+    return $@ ? 0 : 1;
 }
 
 ## ----------------------------------------------------------------------------
