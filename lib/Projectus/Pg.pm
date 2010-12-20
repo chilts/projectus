@@ -8,7 +8,7 @@ use DBI;
 use Projectus::Cfg qw(get_cfg);
 
 use base 'Exporter';
-our @EXPORT_OK = qw(get_pg get_dbh make_select_cols make_select_list make_placeholders);
+our @EXPORT_OK = qw(get_pg get_dbh mk_std_sql_methods mk_select_list mk_select_cols mk_placeholders);
 
 use constant NO_SLICE => { Slice => {} };
 my $dbh_obj;
@@ -78,15 +78,114 @@ has 'tables' => (
 ## ----------------------------------------------------------------------------
 # helpers
 
+# expects a hash with the following things set:
+# * name   => the tablename name (str)
+# * schema => the schema the table is in (str)
+# * uid    => unique name (str)
+# * cols   => columns which can be updated (array ref of strings)
+# * ro     => read-only columns (array ref of strings)
+sub mk_std_sql_methods {
+    my ($self, $t) = @_;
+    my $class = ref $self || $self;
+
+    # the fqn = fully qualified name
+    $t->{fqn} = qq{$t->{schema}.$t->{name} $t->{uid}};
+
+    # ---
+    # create all the SQL parts
+    my @cols_no_id = @{$t->{cols}};
+
+    # generates "name, description, inserted, updated"
+    $t->{sql}{list} ||= join(', ', @{$t->{cols}});
+
+    # generates "u.id AS u_id, u.uid AS u_uid, u.description AS u_description ..."
+    $t->{sql}{select} ||= mk_select_cols( $t->{uid}, @{$t->{cols}}, @{$t->{ro}} );
+
+    # generates "u.id, u.uid, u.description ..."
+    $t->{sql}{group} ||= mk_select_list( $t->{uid}, @{$t->{cols}}, @{$t->{ro}} );
+
+    # generates "id = ?, uid = ?, description = ?, ..."
+    $t->{sql}{update} ||= join(', ', map { qq{$_ = ?} } @{$t->{cols}} );
+
+    # question marks (not the 'ro' columns, these are usually for UPDATEs)
+    $t->{sql}{placeholders} ||= mk_placeholders( $t->{cols} );
+
+    # ---
+    # generate insert and delete subs
+    my $method;
+
+    # SELECT ALL: <$t->{uid}>_sel_all
+    my $sql_sel_all = qq{SELECT $t->{sql}{select} FROM $t->{fqn} ORDER BY $t->{uid}.id};
+    $method = sub {
+        my ($self) = @_;
+        # warn "sel_all($t->{name})=$sql_sel_all";
+        return $self->rows( $sql_sel_all );
+    };
+    $class->_inject_method( qq{$t->{name}_sel_all}, $method );
+
+    # SELECT: <$t->{uid}>_sel
+    my $sql_sel = qq{SELECT $t->{sql}{select} FROM $t->{fqn} WHERE $t->{uid}.id = ?};
+    $method = sub {
+        my ($self, $id) = @_;
+        # warn "sel($t->{name})=$sql_sel";
+        return $self->row( $sql_sel, $id );
+    };
+    $class->_inject_method( qq{$t->{name}_sel}, $method );
+
+    # INSERT: <$t->{uid}>_ins
+    my $sql_ins = qq{INSERT INTO $t->{schema}.$t->{name}($t->{sql}{list}) VALUES($t->{sql}{placeholders})};
+    $method = sub {
+        my ($self, @values) = @_;
+        # warn "ins($t->{name})=$sql_ins";
+        return $self->do_sql( $sql_ins, @values );
+    };
+    $class->_inject_method( qq{$t->{name}_ins}, $method );
+
+    # UPDATE: <$t->{uid}>_upd
+    my $sql_upd = qq{UPDATE $t->{schema}.$t->{name} SET $t->{sql}{update} WHERE id = ?};
+    $method = sub {
+        my ($self, $id, @values) = @_;
+        # warn "upd($t->{name})=$sql_upd";
+        return $self->do_sql( $sql_upd, @values, $id );
+    };
+    $class->_inject_method( qq{$t->{name}_upd}, $method );
+
+    # DELETE: <$t->{uid}>_del
+    my $sql_del = qq{DELETE FROM $t->{fqn} WHERE $t->{uid}.id = ?};
+    $method = sub {
+        my ($self, $id) = @_;
+        # warn "del($t->{name})=$sql_del";
+        return $self->do_sql( $sql_del, $id );
+    };
+    $class->_inject_method( qq{$t->{name}_del}, $method );
+}
+
+sub _inject_method {
+    my ($class, $method_name, $method) = @_;
+
+    # inject into package's namespace
+    if ( defined &{"${class}::$method_name"} ) {
+        warn qq{"${class}::$method_name" already defined, not overwriting.};
+    }
+    else {
+        no strict 'refs';
+        *{"${class}::$method_name"} = $method;
+    }
+}
+
+## ----------------------------------------------------------------------------
+
 sub register_table {
     my ($self, $name, $prefix, $pk, @cols) = @_;
+
+    warn "Deprecated: use mk_std_sql_methods() instead!";
 
     $self->tables->{$name} = {
         name   => $name,
         prefix => $prefix,
         pk     => ($pk || 'id'),
         cols   => \@cols,
-        sel    => make_select_cols($prefix, @cols),
+        sel    => mk_select_cols($prefix, @cols),
     };
 }
 
@@ -182,8 +281,14 @@ sub hash {
     return $self->dbh->selectall_hashref($sql, $key, undef, @params);
 }
 
+sub do_sql {
+    my ($self, $sql, @params) = @_;
+    return $self->dbh->do($sql, undef, @params );
+}
+
 sub do {
     my ($self, $sql, @params) = @_;
+    warn "DEPRECATED: do() ... use do_sql() instead";
     return $self->dbh->do($sql, undef, @params );
 }
 
@@ -214,18 +319,18 @@ sub ins_all {
     }
 }
 
-sub make_select_list {
+sub mk_select_list {
     my ($prefix, @cols) = @_;
     # this can be useful in GROUP BY clauses (when grouping by a whole table)
     return join(', ', map { "${prefix}_$_" } @cols );
 }
 
-sub make_select_cols {
+sub mk_select_cols {
     my ($prefix, @cols) = @_;
     return join(', ', map { "$prefix.$_ AS ${prefix}_$_" } @cols );
 }
 
-sub make_placeholders {
+sub mk_placeholders {
     my ($array_ref) = @_;
     return join(', ', map { '?' } @$array_ref);
 }
