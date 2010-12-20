@@ -7,6 +7,7 @@ our @EXPORT = qw();
 our @EXPORT_OK = qw(
     convert_to_uid
     convert_ddmmyyyy_to_iso8601
+    convert_ddmmyyyy_to_date_simple
     convert_to_boolean
 );
 
@@ -62,6 +63,15 @@ sub convert_ddmmyyyy_to_iso8601 {
     my $date = Date::Simple->new( qq{$yyyy-$mm-$dd} );
     return unless $date;
     return "$date"; # stringify the output
+}
+
+sub convert_ddmmyyyy_to_date_simple {
+    my ($date) = @_;
+
+    my $iso8601 = convert_ddmmyyyy_to_iso8601( $date );
+    return undef unless $iso8601;
+
+    return Date::Simple->new( $iso8601 );
 }
 
 sub convert_to_boolean {
