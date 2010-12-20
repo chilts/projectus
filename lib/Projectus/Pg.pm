@@ -8,7 +8,7 @@ use DBI;
 use Projectus::Cfg qw(get_cfg);
 
 use base 'Exporter';
-our @EXPORT_OK = qw(get_pg get_dbh placeholders);
+our @EXPORT_OK = qw(get_pg get_dbh make_select_cols make_select_list make_placeholders);
 
 use constant NO_SLICE => { Slice => {} };
 my $dbh_obj;
@@ -78,16 +78,6 @@ has 'tables' => (
 ## ----------------------------------------------------------------------------
 # helpers
 
-sub _select_list {
-    my ($self, $prefix, @cols) = @_;
-    return join(', ', map { "${prefix}_$_" } @cols );
-}
-
-sub _select_cols {
-    my ($self, $prefix, @cols) = @_;
-    return join(', ', map { "$prefix.$_ AS ${prefix}_$_" } @cols );
-}
-
 sub register_table {
     my ($self, $name, $prefix, $pk, @cols) = @_;
 
@@ -96,7 +86,7 @@ sub register_table {
         prefix => $prefix,
         pk     => ($pk || 'id'),
         cols   => \@cols,
-        sel    => $self->_select_cols($prefix, @cols),
+        sel    => make_select_cols($prefix, @cols),
     };
 }
 
@@ -224,7 +214,18 @@ sub ins_all {
     }
 }
 
-sub placeholders {
+sub make_select_list {
+    my ($prefix, @cols) = @_;
+    # this can be useful in GROUP BY clauses (when grouping by a whole table)
+    return join(', ', map { "${prefix}_$_" } @cols );
+}
+
+sub make_select_cols {
+    my ($prefix, @cols) = @_;
+    return join(', ', map { "$prefix.$_ AS ${prefix}_$_" } @cols );
+}
+
+sub make_placeholders {
     my ($array_ref) = @_;
     return join(', ', map { '?' } @$array_ref);
 }
