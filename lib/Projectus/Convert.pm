@@ -8,6 +8,7 @@ our @EXPORT_OK = qw(
     convert_to_uid
     convert_ddmmyyyy_to_iso8601
     convert_ddmmyyyy_to_date_simple
+    convert_ymd_to_date_simple
     convert_to_boolean
 );
 
@@ -72,6 +73,21 @@ sub convert_ddmmyyyy_to_date_simple {
     return undef unless $iso8601;
 
     return Date::Simple->new( $iso8601 );
+}
+
+sub convert_ymd_to_date_simple {
+    my ($year, $month, $day) = @_;
+
+    # make them numeric first (to remove any leading zeros)
+    $year += 0;
+    $month += 0;
+    $day += 0;
+
+    # add just one leading zero if necessary
+    $month = $month < 10 ? q{0} . $month : $month;;
+    $day = $day < 10 ? q{0} . $day : $day;
+
+    return Date::Simple->new( qq{$year-$month-$day} );
 }
 
 sub convert_to_boolean {
