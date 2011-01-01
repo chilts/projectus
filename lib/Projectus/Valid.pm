@@ -8,6 +8,7 @@ use Email::Valid;
 use URI;
 use Date::Simple;
 use JSON::Any;
+use Email::Valid;
 
 our @EXPORT = qw();
 our @EXPORT_OK = qw(
@@ -20,6 +21,7 @@ our @EXPORT_OK = qw(
     valid_date
     valid_boolean
     valid_json
+    valid_email
 );
 
 ## ----------------------------------------------------------------------------
@@ -118,6 +120,12 @@ sub valid_json {
     eval { JSON::Any->jsonToObj($json); };
     # warn $@ if $@;
     return $@ ? 0 : 1;
+}
+
+sub valid_email {
+    my ($email) = @_;
+
+    return Email::Valid->address($email) ? 1 : 0;
 }
 
 ## ----------------------------------------------------------------------------
