@@ -92,6 +92,12 @@ sub mk_std_sql_methods {
     $t->{fqn} = qq{$t->{schema}.$t->{name} $t->{uid}};
 
     # ---
+    # save the writeable cols to ->{col} so we can keep an easier check them
+    foreach my $col ( @{$t->{cols}} ) {
+        $t->{col}{$col} = 1;
+    }
+
+    # ---
     # create all the SQL parts
     my @cols_no_id = @{$t->{cols}};
 
@@ -137,6 +143,24 @@ sub mk_std_sql_methods {
     $method = sub {
         my ($self, @values) = @_;
         # warn "ins($t->{name})=$sql_ins";
+
+        if ( ref $values[0] eq 'HASH' ) {
+            my $hash = $values[0];
+            my @cols;
+            my @values;
+
+            # create the SQL and insert it (but only the columns we know about)
+            foreach my $col ( keys %$hash ) {
+                next unless exists $t->{col}{$col};
+                push @cols, $col;
+                push @values, $hash->{$col};
+            }
+            my $sql = qq{INSERT INTO $t->{schema}.$t->{name}(} . join(', ', @cols) . q{) VALUES(} . mk_placeholders(\@cols) . q{)};
+            # warn "ins($t->{name})=$sql";
+            return $self->do_sql( $sql, @values );
+        }
+
+        # do the normal insert with all the values
         return $self->do_sql( $sql_ins, @values );
     };
     $class->_inject_method( qq{$t->{name}_ins}, $method );
@@ -146,6 +170,24 @@ sub mk_std_sql_methods {
     $method = sub {
         my ($self, $id, @values) = @_;
         # warn "upd($t->{name})=$sql_upd";
+
+        if ( ref $values[0] eq 'HASH' ) {
+            my $hash = $values[0];
+            my @cols;
+            my @values;
+
+            # create the SQL and update it (but only the columns we know about)
+            foreach my $col ( keys %$hash ) {
+                next unless exists $t->{col}{$col};
+                push @cols, $col;
+                push @values, $hash->{$col};
+            }
+            my $sql = qq{UPDATE $t->{schema}.$t->{name} SET } . join(', ', map { qq{$_ = ?} } @cols ) . q{ WHERE id = ?}};
+            # warn "upd($t->{name})=$sql";
+            return $self->do_sql( $sql, @values, $id );
+        }
+
+        # else, do the normal update with all the values
         return $self->do_sql( $sql_upd, @values, $id );
     };
     $class->_inject_method( qq{$t->{name}_upd}, $method );
