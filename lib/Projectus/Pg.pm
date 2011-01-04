@@ -182,7 +182,7 @@ sub mk_std_sql_methods {
                 push @cols, $col;
                 push @values, $hash->{$col};
             }
-            my $sql = qq{UPDATE $t->{schema}.$t->{name} SET } . join(', ', map { qq{$_ = ?} } @cols ) . q{ WHERE id = ?}};
+            my $sql = qq{UPDATE $t->{schema}.$t->{name} SET } . join(', ', map { qq{$_ = ?} } @cols ) . q{ WHERE id = ?};
             # warn "upd($t->{name})=$sql";
             return $self->do_sql( $sql, @values, $id );
         }
