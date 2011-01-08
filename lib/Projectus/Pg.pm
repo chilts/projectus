@@ -200,6 +200,15 @@ sub mk_std_sql_methods {
         return $self->do_sql( $sql_del, $id );
     };
     $class->_inject_method( qq{$t->{name}_del}, $method );
+
+    # COUNT: <$t->{uid}>_count
+    my $sql_count = qq{SELECT count(id) FROM $t->{fqn}};
+    $method = sub {
+        my ($self) = @_;
+        # warn "sel_count($t->{name})=$sql_count";
+        return $self->rows( $sql_count );
+    };
+    $class->_inject_method( qq{$t->{name}_count}, $method );
 }
 
 sub _inject_method {
