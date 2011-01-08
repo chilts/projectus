@@ -15,6 +15,7 @@ was 'v0.1.1' and you're on master (ie. v0.1.1..master (master is optional)):
     export RELEASE=0.07
 
     git log v${PREV_REL}..master | grep '^    ' | sort -r | sed 's/^   /  */' | xclip
+    # copy the clipboard into an editor somewhere
     git diff v${PREV_REL}..master
 
 Change the top version number and remove the 'ubuntu' part. Make sure it is in
@@ -31,7 +32,7 @@ Test build it and release it (see below).
 
 Then tag the release;
 
-    git tag -m "Release v$RELEASE" v$RELEASE
+    git tag -m 'CGI::Conduit v$RELEASE' v$RELEASE
     git tag -l
     git push origin v$RELEASE
 
@@ -39,74 +40,22 @@ h2. Making the Packages and Pushing them to the Debian Repository
 
 Test build:
 
-    make build
+    dpkg-buildpackage -us -uc -tc -t -b
 
 Add it to the repo:
 
     cd ../packages
     git fetch
     git rebase origin/master
-    ./add-packages.sh ubuntu ../appsdns-*${RELEASE}_all.deb
-    find . -name "*${RELEASE}_all.deb" | xargs git add
+    ./add-packages.sh ubuntu ../libprojectus-perl_${RELEASE}_all.deb
+    find . -name "libprojectus-perl_${RELEASE}_all.deb" | xargs git add
     git status
 
-Review the updates, rm the files we no longer need, add the new ones and commit:
+Review the updates and rsync to the repo:
 
-    git commit -a -m "New release (v$RELEASE) of AppsDNS" # also deletes the ones missing
+    git commit -a -m "New release (v$RELEASE) of Projectus" # also deletes the ones missing
     git push origin master
     make rsync
     cd -
-
-h2. Releasing on each machine
-
-    ssh terminator.s.appsattic.com
-
-    sudo apt-get update && sudo apt-get install -s appsdns-server-`hostname -s`
-
-    sudo apt-get update && sudo apt-get install -y --force-yes appsdns-server-`hostname -s`
 
 (Ends)
-
-
-
-
-
-
-
-    git tag -l
-    export PREV_REL=0.03
-    export RELEASE=0.04
-
-    git log v${PREV_REL}..master
-    git diff v${PREV_REL}..master
-
-    DEBEMAIL=chilts@appsattic.com dch -v $RELEASE -D lucid
-
-    git commit -m "Update changelog for release v$RELEASE" debian/changelog
-    git show
-    git push origin master
-
-    git tag -m "Release v$RELEASE" v$RELEASE
-    git tag -l
-    git push origin v$RELEASE
-
-    dpkg-buildpackage -us -uc -tc -t -b
-
-Add to the repo:
-
-     cd ../packages
-     ./add-packages.sh ubuntu ../libprojectus-perl_${RELEASE}_all.deb
-
-    git status
-    find . -name "libprojectus-perl_${RELEASE}_all.deb" | xargs git add
-
-    git commit -a -m "New release (v$RELEASE) of Projectus"
-    git push origin master
-    make rsync
-    cd -
-
-Update Projectus for 0.04 -> 0.05 (x2)
-Update Changes file
-Update debian/changelog
-
- $ git tag -m 'CGI::Conduit v0.05' v0.05
