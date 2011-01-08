@@ -1,3 +1,31 @@
+libprojectus-perl (0.07) lucid; urgency=low
+
+  * Start of the unit tests, which are long overdue :)
+  * Return undef rather than nothing, since we won't call it in array context, just scalar
+  * Rename get_pg() to get_dbh() (deprecate get_pg())
+  * Make all the stacked transaction stuff work properly
+  * Don't throw errors, just do your best and return a string
+  * Allow the user to pass in a hash (so they don't always have to specify every column)
+  * Add valid_token()
+  * Add valid_email()
+  * Add valid_date()
+  * Add valid_boolean() and valid_json()
+  * Add the valid_url() function
+  * Add the table_count() method
+  * Add the 'placeholders' export to make things easier
+  * Add the ins_all() method for inserting a lot of rows into a table
+  * Add tests for valid_token()
+  * Add Projectus::Convert :)
+  * Add get_dbh() to the exported functions
+  * Add convert_ymd_to_date_simple()
+  * Add convert_to_boolean()
+  * Add convert_ddmmyyyy_to_iso8601()
+  * Add convert_ddmmyyyy_to_date_simple()
+  * Add a top-level Projectus file
+  * Add all the standard SQL generation methods to Projectus
+
+ -- Andrew Chilton <chilts@appsattic.com>  Sat, 08 Jan 2011 15:47:34 +1300
+
 libprojectus-perl (0.06) lucid; urgency=low
 
   * Fix the valid_ipv4() call to valid_int()
