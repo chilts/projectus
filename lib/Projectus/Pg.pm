@@ -34,6 +34,7 @@ sub get_dbh {
     my $db_pass = $cfg->param( q{db_pass} );
     my $db_host = $cfg->param( q{db_host} );
     my $db_port = $cfg->param( q{db_port} );
+    my $db_tz   = $cfg->param( q{db_tz}   );
 
     die 'No database name specified'
         unless $db_name;
@@ -54,6 +55,10 @@ sub get_dbh {
             RaiseError => 1, # always raise an error with something nasty
         }
     );
+
+    # if we have a timezone, let's also set that
+    $dbh_obj->do( q{SET TIMEZONE TO ?}, undef, $db_tz )
+        if $db_tz;
 
     return $dbh_obj;
 }
