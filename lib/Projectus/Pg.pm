@@ -94,6 +94,7 @@ sub mk_std_sql_methods {
     my $class = ref $self || $self;
 
     # the fqn = fully qualified name
+    my $name = $t->{pseudo} || $t->{name};
     $t->{fqn} = qq{$t->{schema}.$t->{name} $t->{uid}};
 
     # ---
@@ -129,25 +130,25 @@ sub mk_std_sql_methods {
     my $sql_sel_all = qq{SELECT $t->{sql}{select} FROM $t->{fqn} ORDER BY $t->{uid}.id};
     $method = sub {
         my ($self) = @_;
-        # warn "sel_all($t->{name})=$sql_sel_all";
+        # warn "sel_all($name)=$sql_sel_all";
         return $self->rows( $sql_sel_all );
     };
-    $class->_inject_method( qq{$t->{name}_sel_all}, $method );
+    $class->_inject_method( qq{${name}_sel_all}, $method );
 
     # SELECT: <$t->{uid}>_sel
     my $sql_sel = qq{SELECT $t->{sql}{select} FROM $t->{fqn} WHERE $t->{uid}.id = ?};
     $method = sub {
         my ($self, $id) = @_;
-        # warn "sel($t->{name})=$sql_sel";
+        # warn "sel($name)=$sql_sel";
         return $self->row( $sql_sel, $id );
     };
-    $class->_inject_method( qq{$t->{name}_sel}, $method );
+    $class->_inject_method( qq{${name}_sel}, $method );
 
     # INSERT: <$t->{uid}>_ins
-    my $sql_ins = qq{INSERT INTO $t->{schema}.$t->{name}($t->{sql}{list}) VALUES($t->{sql}{placeholders})};
+    my $sql_ins = qq{INSERT INTO $t->{schema}.$name($t->{sql}{list}) VALUES($t->{sql}{placeholders})};
     $method = sub {
         my ($self, @values) = @_;
-        # warn "ins($t->{name})=$sql_ins";
+        # warn "ins($name)=$sql_ins";
 
         if ( ref $values[0] eq 'HASH' ) {
             my $hash = $values[0];
@@ -160,22 +161,23 @@ sub mk_std_sql_methods {
                 push @cols, $col;
                 push @values, $hash->{$col};
             }
-            my $sql = qq{INSERT INTO $t->{schema}.$t->{name}(} . join(', ', @cols) . q{) VALUES(} . mk_placeholders(\@cols) . q{)};
-            # warn "ins($t->{name})=$sql";
+            my $sql = qq{INSERT INTO $t->{schema}.$name(} . join(', ', @cols) . q{) VALUES(} . mk_placeholders(\@cols) . q{)};
+            # warn "ins($name)=$sql";
             return $self->do_sql( $sql, @values );
         }
 
         # do the normal insert with all the values
         return $self->do_sql( $sql_ins, @values );
     };
-    $class->_inject_method( qq{$t->{name}_ins}, $method );
+    $class->_inject_method( qq{${name}_ins}, $method );
 
     # UPDATE: <$t->{uid}>_upd
-    my $sql_upd = qq{UPDATE $t->{schema}.$t->{name} SET $t->{sql}{update} WHERE id = ?};
+    my $sql_upd = qq{UPDATE $t->{schema}.$name SET $t->{sql}{update} WHERE id = ?};
     $method = sub {
         my ($self, $id, @values) = @_;
-        # warn "upd($t->{name})=$sql_upd";
+        # warn "upd($name)=$sql_upd";
 
+        # warn "values[0]=" . (ref $values[0]);
         if ( ref $values[0] eq 'HASH' ) {
             my $hash = $values[0];
             my @cols;
@@ -187,33 +189,33 @@ sub mk_std_sql_methods {
                 push @cols, $col;
                 push @values, $hash->{$col};
             }
-            my $sql = qq{UPDATE $t->{schema}.$t->{name} SET } . join(', ', map { qq{$_ = ?} } @cols ) . q{ WHERE id = ?};
-            # warn "upd($t->{name})=$sql";
+            my $sql = qq{UPDATE $t->{schema}.$name SET } . join(', ', map { qq{$_ = ?} } @cols ) . q{ WHERE id = ?};
+            # warn "upd($name)=$sql";
             return $self->do_sql( $sql, @values, $id );
         }
 
         # else, do the normal update with all the values
         return $self->do_sql( $sql_upd, @values, $id );
     };
-    $class->_inject_method( qq{$t->{name}_upd}, $method );
+    $class->_inject_method( qq{${name}_upd}, $method );
 
     # DELETE: <$t->{uid}>_del
     my $sql_del = qq{DELETE FROM $t->{fqn} WHERE $t->{uid}.id = ?};
     $method = sub {
         my ($self, $id) = @_;
-        # warn "del($t->{name})=$sql_del";
+        # warn "del($name)=$sql_del";
         return $self->do_sql( $sql_del, $id );
     };
-    $class->_inject_method( qq{$t->{name}_del}, $method );
+    $class->_inject_method( qq{${name}_del}, $method );
 
     # COUNT: <$t->{uid}>_count
     my $sql_count = qq{SELECT count(id) FROM $t->{fqn}};
     $method = sub {
         my ($self) = @_;
-        # warn "sel_count($t->{name})=$sql_count";
+        # warn "sel_count($name)=$sql_count";
         return $self->rows( $sql_count );
     };
-    $class->_inject_method( qq{$t->{name}_count}, $method );
+    $class->_inject_method( qq{${name}_count}, $method );
 }
 
 sub _inject_method {
