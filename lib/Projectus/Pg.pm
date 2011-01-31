@@ -324,6 +324,12 @@ sub id {
     return $id;
 }
 
+sub scalar {
+    my ($self, $sql, @params) = @_;
+    # just return the first (and hopefully only) column/value
+    return ($self->dbh->selectrow_array($sql, undef, @params))[0];
+}
+
 sub row {
     my ($self, $sql, @params) = @_;
     return $self->dbh->selectrow_hashref( $sql, undef, @params );
