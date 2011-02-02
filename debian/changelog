@@ -1,3 +1,13 @@
+libprojectus-perl (0.08) lucid; urgency=low
+
+  * Fix the valid_token() function to allow underscores
+  * Add the scalar() method so we can just ask for one row with one column
+  * Allow the config file to specify the timezone to use in the DB
+  * Allow the ability to have pseudo tables which are based on actual tables
+  * Allow single digit days and months in convert_ddmmyyyy_to_iso8601()
+
+ -- Andrew Chilton <chilts@appsattic.com>  Wed, 02 Feb 2011 21:17:40 +1300
+
 libprojectus-perl (0.07) lucid; urgency=low
 
   * Start of the unit tests, which are long overdue :)
