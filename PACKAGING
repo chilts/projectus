@@ -32,7 +32,7 @@ Test build it and release it (see below).
 
 Then tag the release;
 
-    git tag -m 'CGI::Conduit v$RELEASE' v$RELEASE
+    git tag -m 'Projectus v$RELEASE' v$RELEASE
     git tag -l
     git push origin v$RELEASE
 
@@ -55,6 +55,7 @@ Review the updates and rsync to the repo:
 
     git commit -a -m "New release (v$RELEASE) of Projectus" # also deletes the ones missing
     git push origin master
+
     make rsync
     cd -
 
