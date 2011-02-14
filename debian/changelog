@@ -1,3 +1,10 @@
+libprojectus-perl (0.09) lucid; urgency=low
+
+  * Prepare for new release of Projectus
+  * Add valid_ipv6() and a few tests
+
+ -- Andrew Chilton <chilts@appsattic.com>  Tue, 15 Feb 2011 11:26:47 +1300
+
 libprojectus-perl (0.08) lucid; urgency=low
 
   * Fix the valid_token() function to allow underscores
