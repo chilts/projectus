@@ -9,6 +9,7 @@ use URI;
 use Date::Simple;
 use JSON::Any;
 use Email::Valid;
+use Net::IPv6Addr;
 
 our @EXPORT = qw();
 our @EXPORT_OK = qw(
@@ -16,6 +17,7 @@ our @EXPORT_OK = qw(
     valid_int
     valid_domain
     valid_ipv4
+    valid_ipv6
     valid_token
     valid_url
     valid_date
@@ -66,6 +68,11 @@ sub valid_ipv4 {
     }
 
     return 1;
+}
+
+sub valid_ipv6 {
+    my ($ip_address) = @_;
+    return Net::IPv6Addr::ipv6_parse($ip_address) ? 1 : 0;
 }
 
 # see String::Random::NiceURL for details

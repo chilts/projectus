@@ -1,9 +1,9 @@
 #!/usr/bin/perl
 ## ----------------------------------------------------------------------------
 
-use Test::More tests => 91;
+use Test::More tests => 94;
 
-use Projectus::Valid qw(valid_int valid_token valid_url valid_date valid_boolean valid_json);
+use Projectus::Valid qw(valid_int valid_token valid_url valid_date valid_boolean valid_json valid_ipv6);
 
 is( valid_int(),  0, q{[undef] is not an int} );
 is( valid_int(q{}),  0, q{the empty string is not an int} );
@@ -79,5 +79,10 @@ is( valid_json( q<{ 'this' : "that" }> ), 0, q{Hash with incorrect quoting (key)
 is( valid_json( q<{ "this" : 'that' }> ), 0, q{Hash with incorrect quoting (value)} );
 is( valid_json( q<[ 'this', "that" ]> ), 0, q{Array with incorrectly quoted values} );
 is( valid_json( q<[ 'this' : "that" ]> ), 0, q{Array with incorrect value delimiter} );
+
+# valid_ipv6
+is( valid_ipv6( q{2a00:16a0::216:3eff:fe1d:1842} ), 1, q{Slightly shortened address} );
+is( valid_ipv6( q{2a00:16a0:0:0:216:3eff:fe1d:1842} ), 1, q{With Zeros Address} );
+is( valid_ipv6( q{2a00:16a0:0000:0000:216:3eff:fe1d:1842} ), 1, q{Expanded address} );
 
 ## ----------------------------------------------------------------------------
