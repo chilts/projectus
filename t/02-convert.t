@@ -1,10 +1,16 @@
 #!/usr/bin/perl
 ## ----------------------------------------------------------------------------
 
-use Test::More tests => 59;
+use Test::More tests => 73;
 use Test::Exception;
 
-use Projectus::Convert qw(convert_to_uid convert_ddmmyyyy_to_iso8601 convert_to_boolean);
+use Projectus::Convert qw(
+    convert_to_uid
+    convert_ddmmyyyy_to_iso8601
+    convert_to_boolean
+    convert_to_firstname
+    convert_to_lastname
+);
 
 is( convert_to_uid(          ), q{}, q{empty with undef} );
 is( convert_to_uid(  q{}     ), q{}, q{empty with the empty string} );
@@ -50,7 +56,23 @@ foreach my $true ( qw(Yes yes Y y TRUE True true t T ON on 1) ) {
 foreach my $false ( qw(No no N n FALSE False false f F OFF off 0) ) {
     is ( convert_to_boolean( $false ), 0, qq{False ($false)} );
 }
-is ( convert_to_boolean(), 0, qq{Undefined is false)} );
-is ( convert_to_boolean(''), 0, qq{Empty string is false)} );
+is ( convert_to_boolean(), 0, qq{Undefined is false} );
+is ( convert_to_boolean(''), 0, qq{Empty string is false} );
+
+# convert_to_firstname() and convert_to_lastname()
+is ( convert_to_firstname(), '', qq{Firstname: Undefined gives a blank name} );
+is ( convert_to_lastname(), '', qq{Lastname: Undefined gives a blank name} );
+is ( convert_to_firstname(''), '', qq{Firstname: Empty string gives a blank name} );
+is ( convert_to_lastname(''), '', qq{Lastname: Empty string gives a blank name} );
+is ( convert_to_firstname('Blah'), 'Blah', qq{Firstname: Just one name gives it back} );
+is ( convert_to_lastname('Blah'), '', qq{Lastname: Just one name gives nothing gives a blank name} );
+is ( convert_to_firstname('Tom Jones'), 'Tom', qq{Firstname: Normal Use} );
+is ( convert_to_lastname('Tom Jones'), 'Jones', qq{Lastname: Normal Use} );
+is ( convert_to_firstname('Robin van Persie'), 'Robin', qq{Firstname: Dutch Use} );
+is ( convert_to_lastname('Robin van Persie'), 'van Persie', qq{Lastname: Dutch Use} );
+is ( convert_to_firstname('Pat van den Howe'), 'Pat', qq{Firstname: Dutch Use} );
+is ( convert_to_lastname('Pat van den Howe'), 'van den Howe', qq{Lastname: Dutch Use} );
+is ( convert_to_firstname('Felicity Smythe-Jones'), 'Felicity', qq{Firstname: Posh Use} );
+is ( convert_to_lastname('Felicity Smythe-Jones'), 'Smythe-Jones', qq{Lastname: Posh Use} );
 
 ## ----------------------------------------------------------------------------

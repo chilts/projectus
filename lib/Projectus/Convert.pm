@@ -10,6 +10,8 @@ our @EXPORT_OK = qw(
     convert_ddmmyyyy_to_date_simple
     convert_ymd_to_date_simple
     convert_to_boolean
+    convert_to_firstname
+    convert_to_lastname
 );
 
 use Projectus::Valid qw(valid_something);
@@ -102,6 +104,22 @@ sub convert_to_boolean {
     # only really check for true, anything else is false
     return 1 if exists $map->{boolean}{true}{lc $boolean};
     return 0;
+}
+
+sub convert_to_firstname {
+    my ($name) = @_;
+    # return '' unless defined $name;
+    my ($firstname) = $name =~ m{ \A ([^\s]+) }xms;
+    return '' unless defined $firstname;
+    return $firstname;
+}
+
+sub convert_to_lastname {
+    my ($name) = @_;
+    # this just returns everything after the first set of spaces
+    my ($lastname) = $name =~ m{ \A [^\s]+ \s+ (.*) \z }xms;
+    return '' unless defined $lastname;
+    return $lastname;
 }
 
 ## ----------------------------------------------------------------------------
