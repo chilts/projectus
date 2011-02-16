@@ -5,7 +5,7 @@ package Projectus;
 use strict;
 use warnings;
 
-our $VERSION = '0.09';
+our $VERSION = '0.10';
 
 ## ----------------------------------------------------------------------------
 1;
@@ -17,7 +17,7 @@ Projectus - modules for use across a project, using a common configuration file
 
 =head1 VERSION
 
-Version 0.09
+Version 0.10
 
 =head1 SYNOPSIS
 
