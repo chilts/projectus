@@ -84,7 +84,7 @@ my $types = {
 ## ----------------------------------------------------------------------------
 
 sub validate {
-    my ($definition, $data) = @_;
+    my ($data, $definition) = @_;
 
     # to save the errors somewhere
     my $err = {};
