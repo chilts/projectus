@@ -24,6 +24,7 @@ our @EXPORT_OK = qw(
     valid_boolean
     valid_json
     valid_email
+    valid_number
 );
 
 ## ----------------------------------------------------------------------------
@@ -134,6 +135,32 @@ sub valid_email {
     my ($email) = @_;
 
     return Email::Valid->address($email) ? 1 : 0;
+}
+
+sub valid_number {
+    my ($number) = @_;
+    # number can be:
+    # * 0
+    # * +7
+    # * 20.0
+    # * -3
+    # * -4.5
+    # * 0.02
+
+    # Invalid values:
+    # * .0
+    # * 1.
+    # * +.2
+    # * ' 67'
+    # * blah
+
+    # Therefore:
+    # * optional plus or minus
+    # * one or more digits
+    # * optional decimal point (with one or more digits)
+
+    return 1 if $number =~ m{ \A [+-]? \d+  (\.\d+)? \z }xms;
+    return 0;
 }
 
 ## ----------------------------------------------------------------------------

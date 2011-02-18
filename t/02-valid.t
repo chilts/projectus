@@ -1,9 +1,9 @@
 #!/usr/bin/perl
 ## ----------------------------------------------------------------------------
 
-use Test::More tests => 94;
+use Test::More tests => 112;
 
-use Projectus::Valid qw(valid_int valid_token valid_url valid_date valid_boolean valid_json valid_ipv6);
+use Projectus::Valid qw(valid_int valid_token valid_url valid_date valid_boolean valid_json valid_ipv6 valid_number);
 
 is( valid_int(),  0, q{[undef] is not an int} );
 is( valid_int(q{}),  0, q{the empty string is not an int} );
@@ -84,5 +84,26 @@ is( valid_json( q<[ 'this' : "that" ]> ), 0, q{Array with incorrect value delimi
 is( valid_ipv6( q{2a00:16a0::216:3eff:fe1d:1842} ), 1, q{Slightly shortened address} );
 is( valid_ipv6( q{2a00:16a0:0:0:216:3eff:fe1d:1842} ), 1, q{With Zeros Address} );
 is( valid_ipv6( q{2a00:16a0:0000:0000:216:3eff:fe1d:1842} ), 1, q{Expanded address} );
+
+# valid_number
+is( valid_number( q{0} ), 1, q{Zero (0)} );
+is( valid_number( q{+0} ), 1, q{Zero (+0)} );
+is( valid_number( q{-0} ), 1, q{Zero (-0)} );
+is( valid_number( q{0.0} ), 1, q{Zero (0.0)} );
+is( valid_number( q{-3.4} ), 1, q{-3.4} );
+is( valid_number( q{+3.4} ), 1, q{-3.4} );
+is( valid_number( q{3.4} ), 1, q{3.4} );
+is( valid_number( q{0.1} ), 1, q{0.1} );
+
+is( valid_number( q{.1} ), 0, q{.1} );
+is( valid_number( q{1.} ), 0, q{1.} );
+is( valid_number( q{-0.} ), 0, q{-0.} );
+is( valid_number( q{+-0} ), 0, q{+-0} );
+is( valid_number( q{.234} ), 0, q{.234} );
+is( valid_number( ), 0, q{Nothing Passed} );
+is( valid_number( undef ), 0, q{[under]} );
+is( valid_number( q{} ), 0, q{The Empty String} );
+is( valid_number( q{  } ), 0, q{Only Spaces} );
+is( valid_number( q{ 0 } ), 0, q{With Spaces} );
 
 ## ----------------------------------------------------------------------------
