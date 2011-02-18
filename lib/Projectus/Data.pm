@@ -2,7 +2,7 @@
 
 package Projectus::Data;
 use base qw(Exporter);
-
+use Carp qw(croak);
 use Projectus::Valid qw(
     valid_something
     valid_int
@@ -14,6 +14,7 @@ use Projectus::Valid qw(
     valid_boolean
     valid_json
     valid_email
+    valid_number
 );
 
 our @EXPORT = qw();
@@ -29,14 +30,61 @@ my $defaults = {
     required => 1,
 };
 
+my $types = {
+    string => {
+        type => q{string},
+        check => sub {
+            my ($value, $data) = @_;
+            return q{Invalid Value} unless valid_something( $value );
+            return;
+        },
+    },
+    integer => {
+        type => q{integer},
+        check => sub {
+            my ($value, $data) = @_;
+            return q{Invalid Value} unless valid_int( $value );
+            return;
+        },
+    },
+    boolean => {
+        type => q{boolean},
+        check => sub {
+            my ($value, $data) = @_;
+            return q{Invalid Value} unless valid_boolean( $value );
+            return;
+        },
+    },
+    email => {
+        type => q{email},
+        check => sub {
+            my ($value, $data) = @_;
+            return q{Invalid Value} unless valid_email( $value );
+            return;
+        },
+    },
+    number => {
+        type => q{number},
+        check => sub {
+            my ($value, $data) = @_;
+            return q{Invalid Value} unless valid_number( $value );
+            return;
+        },
+    },
+    enum => {
+        type => q{enum},
+        check => sub {
+            my ($value, $data) = @_;
+            return q{Invalid Value} unless valid_something( $value );
+            return;
+        },
+    },
+};
+
 ## ----------------------------------------------------------------------------
 
 sub validate {
-    my ($definition, $in) = @_;
-
-    use Data::Dumper;
-    warn Dumper($definition);
-    warn Dumper($in);
+    my ($definition, $data) = @_;
 
     # to save the errors somewhere
     my $err = {};
@@ -44,21 +92,40 @@ sub validate {
     # loop through each validation option and check it
     while ( my ($name, $specification) = each %$definition ) {
         my %spec = ( %$defaults, %$specification );
-        my $value = $in->{$name};
-        # warn "$name: $spec{type} (required=$spec{required}) - $value\n";
+        my $type = $spec{type};
+        my $value = $data->{$name};
 
-        # firstly, check if this is required
-        if ( $spec{required} and not valid_something( $value ) ) {
-            $err->{$name} = q{Required};
+        # croak if this $type doesn't exist;
+        unless ( exists $types->{$type} ) {
+            croak "Invalid specification, type not known: '$type'"
+        }
+
+        ## ---
+        # INTERNAL CHECKING
+
+        # if we don't have anything, check if it's required
+        unless ( valid_something( $value ) ) {
+            if ( $spec{required} ) {
+                $err->{$name} = q{Required};
+            }
+            # we don't have anything either way, so skip it
             next;
         }
 
+        # for the given type, do it's internal checking
+        my $check = $types->{$type}{check};
+        my $ret = defined $check && &$check( $value, $data );
+        if ( $ret ) {
+            # ie. this has returned an error string
+            $err->{$name} = $err;
+            next;
+        }
+
+        ## ---
+        # SPECIFICATION CHECKING
+
         # looks ok, check the type (no need to check string since that's already done)
-        if ( $spec{type} eq q{integer} ) {
-            if ( not valid_int( $value ) ) {
-                $err->{$name} = q{Invalid integer};
-                next;
-            }
+        if ( $type eq q{integer} ) {
             if ( exists $spec{min} and $value < $spec{min} ) {
                 $err->{$name} = qq{Must be greater than $spec{min}};
                 next;
@@ -68,13 +135,32 @@ sub validate {
                 next;
             }
         }
-        if ( $spec{type} eq q{email} and not valid_email( $value ) ) {
-            $err->{$name} = q{Invalid email address};
+
+        if ( $type eq q{enum} ) {
+            # for enums, check that the value is in the list of valid values
+            unless ( exists $spec{values}{$value} ) {
+                $err->{$name} = qq{Invalid value};
+                next;
+            }
+        }
+
+        # check specifics for other types, e.g.:
+        # * if an integer has a min or max (see above)
+        # * if a URI is http or https
+
+        ## ---
+        # ANONYMOUS FUNCTION CHECKING
+
+        # finally, check their own 'check' method
+        $check = $spec{check};
+        $ret = defined $check && &$sub( $value, $data );
+        if ( $ret ) {
+            # ie. this has returned an error string
+            $err->{$name} = $err;
             next;
         }
     }
-    use Data::Dumper;
-    warn Dumper($err);
+
     return $err;
 }
 
