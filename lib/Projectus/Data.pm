@@ -35,7 +35,7 @@ my $types = {
         type => q{string},
         check => sub {
             my ($value, $data) = @_;
-            return q{Invalid Value} unless valid_something( $value );
+            return q{Invalid String} unless valid_something( $value );
             return;
         },
     },
@@ -43,7 +43,7 @@ my $types = {
         type => q{integer},
         check => sub {
             my ($value, $data) = @_;
-            return q{Invalid Value} unless valid_int( $value );
+            return q{Invalid Integer} unless valid_int( $value );
             return;
         },
     },
@@ -51,7 +51,7 @@ my $types = {
         type => q{boolean},
         check => sub {
             my ($value, $data) = @_;
-            return q{Invalid Value} unless valid_boolean( $value );
+            return q{Invalid Boolean} unless valid_boolean( $value );
             return;
         },
     },
@@ -59,7 +59,7 @@ my $types = {
         type => q{email},
         check => sub {
             my ($value, $data) = @_;
-            return q{Invalid Value} unless valid_email( $value );
+            return q{Invalid Email Address} unless valid_email( $value );
             return;
         },
     },
@@ -67,7 +67,7 @@ my $types = {
         type => q{number},
         check => sub {
             my ($value, $data) = @_;
-            return q{Invalid Value} unless valid_number( $value );
+            return q{Invalid Number} unless valid_number( $value );
             return;
         },
     },
@@ -75,7 +75,7 @@ my $types = {
         type => q{enum},
         check => sub {
             my ($value, $data) = @_;
-            return q{Invalid Value} unless valid_something( $value );
+            return q{Invalid value for Enum} unless valid_something( $value );
             return;
         },
     },
