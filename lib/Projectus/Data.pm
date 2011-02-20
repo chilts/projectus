@@ -91,8 +91,8 @@ sub validate {
 
     # loop through each validation option and check it
     while ( my ($name, $specification) = each %$definition ) {
-        my %spec = ( %$defaults, %$specification );
-        my $type = $spec{type};
+        my $spec = { %$defaults, %$specification };
+        my $type = $spec->{type};
         my $value = $data->{$name};
 
         # croak if this $type doesn't exist;
@@ -105,7 +105,7 @@ sub validate {
 
         # if we don't have anything, check if it's required
         unless ( valid_something( $value ) ) {
-            if ( $spec{required} ) {
+            if ( $spec->{required} ) {
                 $err->{$name} = q{Required};
             }
             # we don't have anything either way, so skip it
@@ -126,19 +126,19 @@ sub validate {
 
         # looks ok, check the type (no need to check string since that's already done)
         if ( $type eq q{integer} ) {
-            if ( exists $spec{min} and $value < $spec{min} ) {
-                $err->{$name} = qq{Must be greater than $spec{min}};
+            if ( exists $spec->{min} and $value < $spec->{min} ) {
+                $err->{$name} = qq{Must be greater than $spec->{min}};
                 next;
             }
-            if ( exists $spec{max} and $value > $spec{max} ) {
-                $err->{$name} = qq{Must be less than $spec{max}};
+            if ( exists $spec->{max} and $value > $spec->{max} ) {
+                $err->{$name} = qq{Must be less than $spec->{max}};
                 next;
             }
         }
 
         if ( $type eq q{enum} ) {
             # for enums, check that the value is in the list of valid values
-            unless ( exists $spec{values}{$value} ) {
+            unless ( exists $spec->{values}{$value} ) {
                 $err->{$name} = qq{Invalid value};
                 next;
             }
@@ -152,11 +152,11 @@ sub validate {
         # ANONYMOUS FUNCTION CHECKING
 
         # finally, check their own 'check' method
-        $check = $spec{check};
-        $ret = defined $check && &$sub( $value, $data );
+        $check = $spec->{check};
+        $ret = defined $check && &$check( $value, $data );
         if ( $ret ) {
             # ie. this has returned an error string
-            $err->{$name} = $err;
+            $err->{$name} = $ret;
             next;
         }
     }

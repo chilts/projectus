@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 ## ----------------------------------------------------------------------------
 
-use Test::More tests => 1;
+use Test::More tests => 2;
 use Test::Exception;
 
 use Projectus::Data qw( validate );
@@ -19,11 +19,20 @@ my $data = {
     sex    => q{male},
     email  => q{a.person@example.net},
     age    => 35, # yrs, to neared year
-    height => 176.5, # cm, to nearest cm
+    height => 76.5, # cm, to nearest cm
 };
 
 ## ----------------------------------------------------------------------------
 
 is_deeply( validate( $data, $person_spec ), {}, q{Person is OK} );
+
+# add another check onto the person
+$person_spec->{height}{check} = sub {
+    my ($value, $data) = @_;
+    return if $value > 100;
+    return q{Height must be greater than 100cm (1m)};
+};
+
+is_deeply( validate( $data, $person_spec ), { height => q{Height must be greater than 100cm (1m)} }, q{Person is OK} );
 
 ## ----------------------------------------------------------------------------
