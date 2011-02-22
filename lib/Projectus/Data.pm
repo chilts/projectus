@@ -114,10 +114,10 @@ sub validate {
 
         # for the given type, do it's internal checking
         my $check = $types->{$type}{check};
-        my $ret = defined $check && &$check( $value, $data );
-        if ( $ret ) {
+        my $err_str = defined $check && &$check( $value, $data );
+        if ( $err_str ) {
             # ie. this has returned an error string
-            $err->{$name} = $err;
+            $err->{$name} = $err_str;
             next;
         }
 
@@ -153,10 +153,10 @@ sub validate {
 
         # finally, check their own 'check' method
         $check = $spec->{check};
-        $ret = defined $check && &$check( $value, $data );
-        if ( $ret ) {
+        $err_str = defined $check && &$check( $value, $data );
+        if ( $err_str ) {
             # ie. this has returned an error string
-            $err->{$name} = $ret;
+            $err->{$name} = $err_str;
             next;
         }
     }
