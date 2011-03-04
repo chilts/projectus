@@ -1,3 +1,15 @@
+libprojectus-perl (0.11.0) lucid; urgency=low
+
+  * Add valid_number()
+  * Make Projectus::Data::validate have more features
+  * Switch the inputs around
+  * Make the error messages nicer
+  * Add a test for extra checking
+  * Fix it when an error has been returned
+  * Prepare for new release of Projectus (v0.11.0)
+
+ -- Andrew Chilton <chilts@appsattic.com>  Sat, 05 Mar 2011 12:17:14 +1300
+
 libprojectus-perl (0.10) lucid; urgency=low
 
   * Prepare for new release of Projectus
