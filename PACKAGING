@@ -8,11 +8,12 @@ was 'v0.1.1' and you're on master (ie. v0.1.1..master (master is optional)):
     git tag -l
 
     # now change this file (PACKAGING) and lib/Projectus.pm to reflect the new version numbers
-    export PREV_REL=0.10
-    export RELEASE=0.11
+    export PREV_REL=0.11
+    export RELEASE=0.12
 
     git commit -m "Prepare for new release of Projectus (v$RELEASE)" PACKAGING lib/Projectus.pm
     git push origin master
+    git show
 
     git log v${PREV_REL}..master | grep '^    ' | tac | sed 's/^   /  */' | xclip
     # copy the clipboard into an editor somewhere
