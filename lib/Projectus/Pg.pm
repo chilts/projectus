@@ -189,6 +189,10 @@ sub mk_std_sql_methods {
                 push @cols, $col;
                 push @values, $hash->{$col};
             }
+            unless ( @cols ) {
+                croak qq{No valid fields were found for this update: } . join(', ', sort keys %$hash);
+            }
+
             my $sql = qq{UPDATE $t->{schema}.$name SET } . join(', ', map { qq{$_ = ?} } @cols ) . q{ WHERE id = ?};
             # warn "upd($name)=$sql";
             return $self->do_sql( $sql, @values, $id );
