@@ -79,6 +79,18 @@ my $types = {
             return;
         },
     },
+    array_of_strings => {
+        check => sub {
+            my ($value, $data) = @_;
+            return q{Invalid structure for Array Of Strings} unless ref $value eq q{ARRAY};
+            my $i = 0;
+            foreach my $str ( @$value ) {
+                return q{Invalid String at index $i} unless valid_something( $str );
+                $i++;
+            }
+            return;
+        }
+    },
 };
 
 ## ----------------------------------------------------------------------------
