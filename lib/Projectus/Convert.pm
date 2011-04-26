@@ -12,6 +12,7 @@ our @EXPORT_OK = qw(
     convert_to_boolean
     convert_to_firstname
     convert_to_lastname
+    convert_to_list
 );
 
 use Projectus::Valid qw(valid_something);
@@ -120,6 +121,19 @@ sub convert_to_lastname {
     my ($lastname) = $name =~ m{ \A [^\s]+ \s+ (.*) \z }xms;
     return '' unless defined $lastname;
     return $lastname;
+}
+
+sub convert_to_list {
+    my ($csv) = @_;
+
+    # return empty if nothing given
+    return [] unless defined $csv;
+
+    # even if we are given a blank string such as q{ }, this is okay (it'll be
+    # a one element empty string)
+
+    my @list = split( m{ \s*,\s* }xms, $csv );
+    return \@list;
 }
 
 ## ----------------------------------------------------------------------------
