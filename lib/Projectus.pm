@@ -5,7 +5,7 @@ package Projectus;
 use strict;
 use warnings;
 
-our $VERSION = '0.11.0';
+our $VERSION = '0.13.0';
 
 ## ----------------------------------------------------------------------------
 1;
