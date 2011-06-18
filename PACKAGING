@@ -8,14 +8,15 @@ was 'v0.1.1' and you're on master (ie. v0.1.1..master (master is optional)):
     git tag -l
 
     # now change this file (PACKAGING) and lib/Projectus.pm to reflect the new version numbers
-    export PREV_REL=0.12
-    export RELEASE=0.13.0
+    export BRANCH=master
+    export PREV_REL=0.13.0
+    export RELEASE=0.14.0
 
     git commit -m "Prepare for new release of Projectus (v$RELEASE)" PACKAGING lib/Projectus.pm
-    git push origin master
     git show
+    git push origin $BRANCH
 
-    git log v${PREV_REL}..master | grep '^    ' | tac | sed 's/^   /  */' | xclip
+    git log v${PREV_REL}..HEAD | grep '^    ' | tac | sed 's/^   /  */' | xclip
 
 Change the top version number and remove the 'ubuntu' part. Make sure it is in
 'unstable' rather than 'lucid':
@@ -25,7 +26,7 @@ Change the top version number and remove the 'ubuntu' part. Make sure it is in
     git commit -m "Update changelog for release v$RELEASE" debian/changelog
     git show
 
-    git push origin master
+    git push origin $BRANCH
 
 Test build it and release it (see below).
 
@@ -39,9 +40,14 @@ h2. Making the Packages and Pushing them to the Debian Repository
 
 Test build:
 
-    git fetch && git rebase origin/master && dpkg-buildpackage -us -uc -tc -t -b
+    cd ~/appsattic/projectus
+    git checkout $BRANCH && git fetch && git rebase origin/$BRANCH && dpkg-buildpackage -us -uc -tc -t -b
 
 Add it to the repo:
+
+    ssh-agent > /tmp/ssh.$$
+    . /tmp/ssh.$$
+    ssh-add
 
     cd ../packages
     git fetch
@@ -54,9 +60,7 @@ Review the updates and rsync to the repo:
 
     git commit -a -m "New release (v$RELEASE) of Projectus" # also deletes the ones missing
     git push origin master
-
     make rsync
-
     cd -
 
 (Ends)
