@@ -95,7 +95,7 @@ sub mk_std_sql_methods {
 
     # the fqn = fully qualified name
     my $name = $t->{pseudo} || $t->{name};
-    $t->{fqn} = qq{$t->{schema}.$t->{name} $t->{uid}};
+    $t->{fqn} = qq{$t->{schema}.$t->{name} "$t->{uid}"};
 
     # ---
     # save the writeable cols to ->{col} so we can keep an easier check them
@@ -127,7 +127,7 @@ sub mk_std_sql_methods {
     my $method;
 
     # SELECT ALL: <$t->{uid}>_sel_all
-    my $sql_sel_all = qq{SELECT $t->{sql}{select} FROM $t->{fqn} ORDER BY $t->{uid}.id};
+    my $sql_sel_all = qq{SELECT $t->{sql}{select} FROM $t->{fqn} ORDER BY "$t->{uid}".id};
     $method = sub {
         my ($self) = @_;
         # warn "sel_all($name)=$sql_sel_all";
@@ -136,7 +136,7 @@ sub mk_std_sql_methods {
     $class->_inject_method( qq{${name}_sel_all}, $method );
 
     # SELECT: <$t->{uid}>_sel
-    my $sql_sel = qq{SELECT $t->{sql}{select} FROM $t->{fqn} WHERE $t->{uid}.id = ?};
+    my $sql_sel = qq{SELECT $t->{sql}{select} FROM $t->{fqn} WHERE "$t->{uid}".id = ?};
     $method = sub {
         my ($self, $id) = @_;
         # warn "sel($name)=$sql_sel";
@@ -204,7 +204,7 @@ sub mk_std_sql_methods {
     $class->_inject_method( qq{${name}_upd}, $method );
 
     # DELETE: <$t->{uid}>_del
-    my $sql_del = qq{DELETE FROM $t->{fqn} WHERE $t->{uid}.id = ?};
+    my $sql_del = qq{DELETE FROM $t->{fqn} WHERE "$t->{uid}".id = ?};
     $method = sub {
         my ($self, $id) = @_;
         # warn "del($name)=$sql_del";
@@ -390,12 +390,12 @@ sub ins_all {
 sub mk_select_list {
     my ($prefix, @cols) = @_;
     # this can be useful in GROUP BY clauses (when grouping by a whole table)
-    return join(', ', map { "${prefix}_$_" } @cols );
+    return join(', ', map { qq{${prefix}_$_} } @cols );
 }
 
 sub mk_select_cols {
     my ($prefix, @cols) = @_;
-    return join(', ', map { "$prefix.$_ AS ${prefix}_$_" } @cols );
+    return join(', ', map { qq{"$prefix".$_ AS ${prefix}_$_} } @cols );
 }
 
 sub mk_placeholders {
