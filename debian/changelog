@@ -1,3 +1,11 @@
+libprojectus-perl (0.14.0) lucid; urgency=low
+
+  * Add the ability to check an array of integers
+  * Quote table names for all database tables
+  * Prepare for new release of Projectus (v0.14.0)
+
+ -- Andrew Chilton <chilts@appsattic.com>  Sat, 18 Jun 2011 22:58:57 +1200
+
 libprojectus-perl (0.13.0) lucid; urgency=low
 
   * Make sure we depend on libnet-ipv6addr-perl!
