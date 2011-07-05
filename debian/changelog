@@ -1,3 +1,10 @@
+libprojectus-perl (0.15.0) lucid; urgency=low
+
+  * Quote all of the column names when creating the queries
+  * Prepare for new release of Projectus (v0.15.0)
+
+ -- Andrew Chilton <chilts@appsattic.com>  Wed, 06 Jul 2011 08:49:42 +1200
+
 libprojectus-perl (0.14.0) lucid; urgency=low
 
   * Add the ability to check an array of integers
