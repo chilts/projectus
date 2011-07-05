@@ -107,8 +107,8 @@ sub mk_std_sql_methods {
     # create all the SQL parts
     my @cols_no_id = @{$t->{cols}};
 
-    # generates "name, description, inserted, updated"
-    $t->{sql}{list} ||= join(', ', @{$t->{cols}});
+    # generates q{"name", "description", "primary", "inserted", "updated"}
+    $t->{sql}{list} ||= join(', ', map { qq{"$_"} } @{$t->{cols}});
 
     # generates "u.id AS u_id, u.uid AS u_uid, u.description AS u_description ..."
     $t->{sql}{select} ||= mk_select_cols( $t->{uid}, @{$t->{cols}}, @{$t->{ro}} );
@@ -117,7 +117,7 @@ sub mk_std_sql_methods {
     $t->{sql}{group} ||= mk_select_list( $t->{uid}, @{$t->{cols}}, @{$t->{ro}} );
 
     # generates "id = ?, uid = ?, description = ?, ..."
-    $t->{sql}{update} ||= join(', ', map { qq{$_ = ?} } @{$t->{cols}} );
+    $t->{sql}{update} ||= join(', ', map { qq{"$_" = ?} } @{$t->{cols}} );
 
     # question marks (not the 'ro' columns, these are usually for UPDATEs)
     $t->{sql}{placeholders} ||= mk_placeholders( $t->{cols} );
@@ -161,7 +161,7 @@ sub mk_std_sql_methods {
                 push @cols, $col;
                 push @values, $hash->{$col};
             }
-            my $sql = qq{INSERT INTO $t->{schema}.$name(} . join(', ', @cols) . q{) VALUES(} . mk_placeholders(\@cols) . q{)};
+            my $sql = qq{INSERT INTO $t->{schema}.$name(} . join(', ', map { qq{"$_"} } @cols) . q{) VALUES(} . mk_placeholders(\@cols) . q{)};
             # warn "ins($name)=$sql";
             return $self->do_sql( $sql, @values );
         }
