@@ -9,8 +9,8 @@ was 'v0.1.1' and you're on master (ie. v0.1.1..master (master is optional)):
 
     # now change this file (PACKAGING) and lib/Projectus.pm to reflect the new version numbers
     export BRANCH=master
-    export PREV_REL=0.13.0
-    export RELEASE=0.14.0
+    export PREV_REL=0.14.0
+    export RELEASE=0.15.0
 
     git commit -m "Prepare for new release of Projectus (v$RELEASE)" PACKAGING lib/Projectus.pm
     git show
