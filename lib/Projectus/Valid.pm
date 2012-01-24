@@ -8,7 +8,6 @@ use Email::Valid;
 use URI;
 use Date::Simple;
 use JSON::Any;
-use Email::Valid;
 use Net::IPv6Addr;
 
 our @EXPORT = qw();
@@ -134,7 +133,12 @@ sub valid_json {
 sub valid_email {
     my ($email) = @_;
 
-    return Email::Valid->address($email) ? 1 : 0;
+    # since Email::Valid returns an email address if it can find one, then we
+    # should only return true if that is the same as what was given in!!!
+    if ( $email eq Email::Valid->address($email) ) {
+        return 1;
+    }
+    return 0;
 }
 
 sub valid_number {

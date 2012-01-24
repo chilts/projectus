@@ -3,7 +3,7 @@
 
 use Test::More tests => 112;
 
-use Projectus::Valid qw(valid_int valid_token valid_url valid_date valid_boolean valid_json valid_ipv6 valid_number);
+use Projectus::Valid qw(valid_int valid_token valid_url valid_date valid_boolean valid_json valid_ipv6 valid_number valid_email);
 
 is( valid_int(),  0, q{[undef] is not an int} );
 is( valid_int(q{}),  0, q{the empty string is not an int} );
@@ -105,5 +105,13 @@ is( valid_number( undef ), 0, q{[under]} );
 is( valid_number( q{} ), 0, q{The Empty String} );
 is( valid_number( q{  } ), 0, q{Only Spaces} );
 is( valid_number( q{ 0 } ), 0, q{With Spaces} );
+
+# valid_email
+is( valid_email( q{pie@example.com}), 1, q{Normal email address} );
+is( valid_email( q{whoyah+2@example.net}), 1, q{Email with + thingy} );
+is( valid_email( q{bob.jones@example.co.nz}), 1, q{With a full-stop in it} );
+is( valid_email( q{mchu4blah@fs2.ee.example.ac.uk}), 1, q{Long(ish)} );
+
+is( valid_email( q{Firstname Lastname <bob@example.com>}), 0, q{Invalid: firstname lastname <email address>} );
 
 ## ----------------------------------------------------------------------------
