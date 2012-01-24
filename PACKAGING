@@ -32,7 +32,7 @@ Test build it and release it (see below).
 
 Then tag the release;
 
-    git tag -m 'Projectus v$RELEASE' v$RELEASE
+    git tag -m "Projectus v$RELEASE" v$RELEASE
     git tag -l
     git push origin v$RELEASE
 
